@@ -108,7 +108,7 @@ message SCTPErrorInfo extends SCTPCommand
 message SCTPOpenCommand extends SCTPCommand
 {
     AddressVector localAddresses;
-    L3Address remoteAddr;            // required for active open
+//    L3Address remoteAddr;            // required for active open
     AddressVector remoteAddresses;
     bool fork = false;               // used only for passive open
     string queueClass = "SCTPQueue"; // may be left empty
@@ -187,7 +187,7 @@ message SCTPPathInfo extends SCTPCommand
 
 message SCTPResetInfo extends SCTPCommand
 {
-    L3Address remoteAddr;
+//    L3Address remoteAddr;
     unsigned short requestType = 0;
     char streams[];
 }
