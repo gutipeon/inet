@@ -33,8 +33,8 @@ simple GenericNetworkProtocol
         int hopLimit = default(32);
         @display("i=block/routing");
     gates:
-        input transportIn @labels(TCPSegment,UDPPacket);
-        output transportOut @labels(TCPSegment,UDPPacket);
+        input transportIn @labels(TCPSegment,UdpHeader);
+        output transportOut @labels(TCPSegment,UdpHeader);
         input arpIn;
         output arpOut;
         input queueIn @labels(GenericDatagram);
