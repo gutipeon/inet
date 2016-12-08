@@ -22,7 +22,7 @@
 #include "inet/common/ProtocolTag_m.h"
 #include "inet/linklayer/ethernet/EtherEncap.h"
 
-#include "inet/linklayer/ethernet/EtherFrame.h"
+#include "inet/linklayer/ethernet/EtherFrame_m.h"
 #include "inet/networklayer/contract/IInterfaceTable.h"
 #include "inet/linklayer/common/EtherTypeTag_m.h"
 #include "inet/linklayer/common/Ieee802Ctrl.h"
