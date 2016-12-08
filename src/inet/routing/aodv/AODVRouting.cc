@@ -167,7 +167,7 @@ void AODVRouting::handleMessage(cMessage *msg)
         }
         else if (true) {  //FIXME protocol == ???
             Packet *udpPacket = check_and_cast<Packet *>(msg);
-            const auto& udpHeader = udpPacket->popHeader<UDPHeader>();
+            const auto& udpHeader = udpPacket->popHeader<UdpHeader>();
             L3Address sourceAddr = udpPacket->getMandatoryTag<L3AddressInd>()->getSrcAddress();
             unsigned int arrivalPacketTTL = udpPacket->getMandatoryTag<HopLimitInd>()->getHopLimit();
             const auto& ctrlPacket = udpPacket->popHeader<AODVControlPacket>();
@@ -749,7 +749,7 @@ void AODVRouting::sendAODVPacket(AODVControlPacket *packet, const L3Address& des
     InterfaceEntry *ifEntry = interfaceTable->getInterfaceByName("wlan0");
 
     Packet *udpPacket = new Packet(packet->getName());
-    auto udpHeader = std::make_shared<UDPHeader>();
+    auto udpHeader = std::make_shared<UdpHeader>();
     udpHeader->setSourcePort(aodvUDPPort);
     udpHeader->setDestinationPort(aodvUDPPort);
     udpPacket->prepend(udpHeader);
