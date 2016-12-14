@@ -482,7 +482,7 @@ TCPEventCode TCPConnection::processSegment1stThru8th(Packet *packet, TcpHeader *
             if (payloadLength == 1)
                 state->ack_now = true; // TODO how to check if it is really a persist probe?
 
-            tcpseg->truncateSegment(state->rcv_nxt, state->rcv_nxt + state->rcv_wnd);
+            // tcpseg->truncateSegment(state->rcv_nxt, state->rcv_nxt + state->rcv_wnd);        //FIXME KLUDGE - but why did we do it? where is it in RFCs?
 
             updateRcvQueueVars();
 

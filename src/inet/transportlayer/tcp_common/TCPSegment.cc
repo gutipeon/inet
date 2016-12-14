@@ -54,9 +54,9 @@ std::string Sack::str() const
 
 Register_Class(TcpHeader);
 
+#if 0   //FIXME KLUDGE
 void TcpHeader::truncateSegment(uint32 firstSeqNo, uint32 endSeqNo)
 {
-#if 0   //FIXME KLUDGE
     ASSERT(payloadLength > 0);
 
     // must have common part:
@@ -79,8 +79,8 @@ void TcpHeader::truncateSegment(uint32 firstSeqNo, uint32 endSeqNo)
     }
 
     truncateData(truncleft, truncright);
-#endif
 }
+#endif
 
 unsigned short TcpHeader::getHeaderOptionArrayLength()
 {
@@ -110,7 +110,8 @@ void TcpHeader::copy(const TcpHeader& other)
 
 TcpHeader::~TcpHeader()
 {
-    clean();
+    for (auto opt : headerOptionList)
+        delete opt;
 }
 
 void TcpHeader::clean()
@@ -120,9 +121,9 @@ void TcpHeader::clean()
     setChunkLength(TCP_HEADER_OCTETS);
 }
 
+#if 0   //FIXME KLUDGE
 void TcpHeader::truncateData(unsigned int truncleft, unsigned int truncright)
 {
-#if 0   //FIXME KLUDGE
     ASSERT(payloadLength >= truncleft + truncright);
 
     if (0 != byteArray.getDataArraySize())
@@ -144,8 +145,8 @@ void TcpHeader::truncateData(unsigned int truncleft, unsigned int truncright)
         payloadList.pop_back();
         dropAndDelete(msg);
     }
-#endif
 }
+#endif
 
 void TcpHeader::parsimPack(cCommBuffer *b) PARSIMPACK_CONST
 {

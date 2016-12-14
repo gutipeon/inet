@@ -36,6 +36,7 @@ void TCPVirtualDataSendQueue::init(uint32 startSeq)
 {
     begin = startSeq;
     end = startSeq;
+    dataBuffer.clear();          // clear dataBuffer
 }
 
 std::string TCPVirtualDataSendQueue::info() const
@@ -45,9 +46,10 @@ std::string TCPVirtualDataSendQueue::info() const
     return out.str();
 }
 
-void TCPVirtualDataSendQueue::enqueueAppData(cPacket *msg)
+void TCPVirtualDataSendQueue::enqueueAppData(Packet *msg)
 {
     //tcpEV << "sendQ: " << info() << " enqueueAppData(bytes=" << msg->getByteLength() << ")\n";
+    dataBuffer.push(msg->peekDataAt(0, msg->getByteLength()));
     end += msg->getByteLength();
     if (seqLess(end, begin))
         throw cRuntimeError("Send queue is full");
@@ -76,7 +78,7 @@ Packet *TCPVirtualDataSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong nu
     Packet *packet = new Packet(msgname);
     const auto& tcpseg = std::make_shared<TcpHeader>();
     tcpseg->setSequenceNo(fromSeq);
-    const auto& payload = std::make_shared<ByteCountChunk>(numBytes);   //FIXME get data from buffer
+    const auto& payload = dataBuffer.peekAt(fromSeq-begin, numBytes);   //get data from buffer
     packet->pushHeader(tcpseg);
     packet->pushTrailer(payload);
     return packet;
@@ -88,7 +90,10 @@ void TCPVirtualDataSendQueue::discardUpTo(uint32 seqNum)
 
     ASSERT(seqLE(begin, seqNum) && seqLE(seqNum, end));
 
-    begin = seqNum;
+    if (seqNum != begin) {
+        dataBuffer.pop(seqNum - begin);
+        begin = seqNum;
+    }
 }
 
 } // namespace tcp

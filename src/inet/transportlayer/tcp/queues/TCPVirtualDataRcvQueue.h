@@ -40,58 +40,16 @@ class INET_API TCPVirtualDataRcvQueue : public TCPReceiveQueue
 {
   protected:
     uint32 rcv_nxt = 0;
-
-    class Region        //FIXME remove it
-    {
-      protected:
-        uint32 begin;
-        uint32 end;
-
-      public:
-        enum CompareStatus { BEFORE = 1, BEFORE_TOUCH, OVERLAP, AFTER_TOUCH, AFTER };
-        Region(uint32 _begin, uint32 _end) : begin(_begin), end(_end) {};
-        virtual ~Region() {};
-        uint32 getBegin() const { return begin; }
-        uint32 getEnd() const { return end; }
-        unsigned long getLength() const { return (ulong)(end - begin); }
-        unsigned long getLengthTo(uint32 seq) const;
-
-        /** Compare self and other */
-        _OPPDEPRECATED CompareStatus compare(const TCPVirtualDataRcvQueue::Region& other) const;
-
-        // Virtual functions:
-
-        /** Merge other region to self */
-        _OPPDEPRECATED virtual bool merge(const TCPVirtualDataRcvQueue::Region *other);
-
-        /** Copy self to msg */
-        _OPPDEPRECATED virtual void copyTo(cPacket *msg) const;
-
-        /**
-         * Returns an allocated new Region object with filled with [begin..seq) and set self to [seq..end)
-         */
-        _OPPDEPRECATED virtual TCPVirtualDataRcvQueue::Region *split(uint32 seq);
-    };
-
-    typedef std::list<Region *> RegionList;        //FIXME remove it
-    RegionList regionList;        //FIXME remove it
-
     ReorderBuffer reorderBuffer;
 
-    /** Merge segment byte range into regionList, the parameter region must created by 'new' operator. */
-    _OPPDEPRECATED void merge(TCPVirtualDataRcvQueue::Region *region);        //FIXME remove it
+    uint32_t offsetToSeq(int64_t offs) const { return (uint32_t)offs; }
 
-    // Returns number of bytes extracted
-    _OPPDEPRECATED TCPVirtualDataRcvQueue::Region *extractTo(uint32 toSeq);        //FIXME remove it
-
-    /**
-     * Create a new Region from tcpseg.
-     * Called from insertBytesFromSegment()
-     */
-    _OPPDEPRECATED virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(Packet *packet, TcpHeader *tcpseg);        //FIXME remove it
-
-    uint32_t offsetToSeq(int64_t offs) const;
-    int64_t seqToOffset(uint32_t seq) const;
+    int64_t seqToOffset(uint32_t seq) const
+    {
+        int64_t expOffs = reorderBuffer.getExpectedOffset();
+        uint32_t expSeq = offsetToSeq(expOffs);
+        return (seqGE(seq, expSeq)) ? expOffs + (seq - expSeq) : expOffs - (expSeq - seq);
+    }
 
   public:
     /**

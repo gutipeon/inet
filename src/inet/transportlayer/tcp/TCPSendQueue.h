@@ -119,7 +119,7 @@ class INET_API TCPSendQueue : public cObject
      * The msg object should not be referenced after this point (sendQueue may
      * delete it.)
      */
-    virtual void enqueueAppData(cPacket *msg) = 0;
+    virtual void enqueueAppData(Packet *msg) = 0;
 
     /**
      * Returns the sequence number of the first byte stored in the buffer.

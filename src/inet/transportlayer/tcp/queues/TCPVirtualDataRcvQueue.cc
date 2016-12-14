@@ -39,6 +39,7 @@ void TCPVirtualDataRcvQueue::init(uint32 startSeq)
     rcv_nxt = startSeq;
 
     reorderBuffer.clear();
+    reorderBuffer.setExpectedOffset(startSeq);
 }
 
 std::string TCPVirtualDataRcvQueue::info() const
@@ -89,7 +90,8 @@ cPacket *TCPVirtualDataRcvQueue::extractBytesUpTo(uint32_t seq)
     if (reorderBuffer.empty())
         return nullptr;
 
-    auto chunk = reorderBuffer.popData(seqToOffset(seq));
+    auto chunk = reorderBuffer.popData();
+    ASSERT(reorderBuffer.getExpectedOffset() <= seqToOffset(seq));
 
     Packet *msg = nullptr;
 
