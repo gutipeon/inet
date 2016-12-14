@@ -69,6 +69,8 @@ class INET_API TracingObstacleLossVisualizerBase : public VisualizerBase, public
     virtual void setAlpha(const ObstacleLossVisualization *obstacleLossVisualization, double alpha) const = 0;
 
   public:
+    virtual ~TracingObstacleLossVisualizerBase();
+
     virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 

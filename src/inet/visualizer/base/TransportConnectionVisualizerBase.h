@@ -58,6 +58,8 @@ class INET_API TransportConnectionVisualizerBase : public VisualizerBase, public
     virtual void removeConnectionVisualization(const TransportConnectionVisualization *connectionVisualization);
 
   public:
+    virtual ~TransportConnectionVisualizerBase();
+
     virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 

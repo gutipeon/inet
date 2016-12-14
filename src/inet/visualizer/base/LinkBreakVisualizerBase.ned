@@ -32,7 +32,7 @@ package inet.visualizer.base;
 simple LinkBreakVisualizerBase extends VisualizerBase
 {
     parameters:
-        string subscriptionModule = default(""); // module path where the visualizer subscribes for link break signals, root module by default
+        string subscriptionModule = default("<root>"); // module path where the visualizer subscribes for link break signals, root module by default
         string nodeFilter = default(""); // which network nodes are considered to display link breaks, matches no nodes by default
         string icon = default("status/stop");
         double iconTintAmount = default(0);

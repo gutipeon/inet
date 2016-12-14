@@ -27,7 +27,7 @@ package inet.visualizer.base;
 simple TracingObstacleLossVisualizerBase extends VisualizerBase
 {
     parameters:
-        string subscriptionModule = default(""); // module path where the visualizer subscribes for obstacle loss signals, root module by default
+        string subscriptionModule = default("<root>"); // module path where the visualizer subscribes for obstacle loss signals, root module by default
         bool displayIntersection = default(false); // display instersections of transmissions and physical objects, disabled by default
         bool displayFaceNormalVector = default(false); // display face normal vectors of instersections, disabled by default
         string intersectionLineColor = default("red");

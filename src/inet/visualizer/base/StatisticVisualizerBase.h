@@ -87,6 +87,8 @@ class INET_API StatisticVisualizerBase : public VisualizerBase, public cListener
     virtual void processSignal(cComponent *source, simsignal_t signal, double value);
 
   public:
+    virtual ~StatisticVisualizerBase();
+
     virtual void receiveSignal(cComponent *source, simsignal_t signal, bool b, cObject *details) override { processSignal(source, signal, NaN); }
     virtual void receiveSignal(cComponent *source, simsignal_t signal, long l, cObject *details) override { processSignal(source, signal, l); }
     virtual void receiveSignal(cComponent *source, simsignal_t signal, unsigned long l, cObject *details) override { processSignal(source, signal, l); }

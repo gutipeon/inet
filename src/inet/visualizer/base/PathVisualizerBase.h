@@ -90,6 +90,8 @@ class INET_API PathVisualizerBase : public VisualizerBase, public cListener
     virtual void updatePath(const std::vector<int>& path);
 
   public:
+    virtual ~PathVisualizerBase();
+
     virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 

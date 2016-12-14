@@ -30,12 +30,22 @@ StatisticVisualizerBase::StatisticVisualization::StatisticVisualization(int modu
     recorder = new LastValueRecorder();
 }
 
+StatisticVisualizerBase::~StatisticVisualizerBase()
+{
+    // NOTE: lookup the module again because it may have been deleted first
+    subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this, false);
+    if (subscriptionModule != nullptr) {
+        if (*signalName != '\0')
+            subscriptionModule->unsubscribe(registerSignal(signalName), this);
+    }
+}
+
 void StatisticVisualizerBase::initialize(int stage)
 {
     VisualizerBase::initialize(stage);
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
-        subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
+        subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         sourcePathMatcher.setPattern(par("sourcePathFilter"), true, true, true);
         signalName = par("signalName");
         if (*signalName != '\0')

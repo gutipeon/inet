@@ -66,6 +66,9 @@ class INET_API LinkBreakVisualizerBase : public VisualizerBase, public cListener
     virtual void setAlpha(const LinkBreakVisualization *linkBreakVisualization, double alpha) const = 0;
 
     virtual cModule *findNode(MACAddress address);
+
+  public:
+    virtual ~LinkBreakVisualizerBase();
 };
 
 } // namespace visualizer

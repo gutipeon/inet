@@ -33,12 +33,20 @@ TransportConnectionVisualizerBase::TransportConnectionVisualization::TransportCo
 {
 }
 
+TransportConnectionVisualizerBase::~TransportConnectionVisualizerBase()
+{
+    // NOTE: lookup the module again because it may have been deleted first
+    subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this, false);
+    if (subscriptionModule != nullptr)
+        subscriptionModule->unsubscribe(inet::tcp::TCP::tcpConnectionAddedSignal, this);
+}
+
 void TransportConnectionVisualizerBase::initialize(int stage)
 {
     VisualizerBase::initialize(stage);
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
-        subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
+        subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(inet::tcp::TCP::tcpConnectionAddedSignal, this);
         nodeMatcher.setPattern(par("nodeFilter"), false, true, true);
         icon = par("icon");

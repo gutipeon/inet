@@ -32,12 +32,24 @@ Ieee80211VisualizerBase::Ieee80211Visualization::Ieee80211Visualization(int netw
 {
 }
 
+Ieee80211VisualizerBase::~Ieee80211VisualizerBase()
+{
+    // NOTE: lookup the module again because it may have been deleted first
+    subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this, false);
+    if (subscriptionModule != nullptr) {
+        subscriptionModule->unsubscribe(NF_L2_ASSOCIATED, this);
+        subscriptionModule->unsubscribe(NF_L2_DISASSOCIATED, this);
+        subscriptionModule->unsubscribe(NF_L2_AP_ASSOCIATED, this);
+        subscriptionModule->unsubscribe(NF_L2_AP_DISASSOCIATED, this);
+    }
+}
+
 void Ieee80211VisualizerBase::initialize(int stage)
 {
     VisualizerBase::initialize(stage);
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
-        subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
+        subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(NF_L2_ASSOCIATED, this);
         subscriptionModule->subscribe(NF_L2_DISASSOCIATED, this);
         subscriptionModule->subscribe(NF_L2_AP_ASSOCIATED, this);

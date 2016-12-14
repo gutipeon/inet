@@ -32,7 +32,7 @@ package inet.visualizer.base;
 simple StatisticVisualizerBase extends VisualizerBase
 {
     parameters:
-        string subscriptionModule = default(""); // module path where the visualizer subscribes for the signal, root module by default
+        string subscriptionModule = default("<root>"); // module path where the visualizer subscribes for the signal, root module by default
         string sourcePathFilter = default(""); // pattern that must match the full path of the source, no source filter by default
         string signalName = default(""); // signal name to subscribe, no signal name by default
         string statisticName = default(signalName); // statistic name to get the value, signal name by default

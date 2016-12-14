@@ -28,7 +28,7 @@ package inet.visualizer.base;
 simple MobilityVisualizerBase extends VisualizerBase
 {
     parameters:
-        string subscriptionModule = default(""); // module path where the visualizer subscribes for mobility signals, root module by default
+        string subscriptionModule = default("<root>"); // module path where the visualizer subscribes for mobility signals, root module by default
         // orientation
         bool displayOrientation = default(false); // display an arc indicating the current orientation, disabled by default
         double orientationArcSize = default(0.25); // relative size of the arc compared to the full circle 

@@ -33,15 +33,28 @@ RoutingTableVisualizerBase::RouteVisualization::RouteVisualization(int nodeModul
 {
 }
 
+RoutingTableVisualizerBase::~RoutingTableVisualizerBase()
+{
+    // NOTE: lookup the module again because it may have been deleted first
+    subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this, false);
+    if (subscriptionModule != nullptr) {
+        subscriptionModule->unsubscribe(NF_ROUTE_ADDED, this);
+        subscriptionModule->unsubscribe(NF_ROUTE_DELETED, this);
+        subscriptionModule->unsubscribe(NF_ROUTE_CHANGED, this);
+        subscriptionModule->unsubscribe(NF_INTERFACE_IPv4CONFIG_CHANGED, this);
+    }
+}
+
 void RoutingTableVisualizerBase::initialize(int stage)
 {
     VisualizerBase::initialize(stage);
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
-        subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
+        subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(NF_ROUTE_ADDED, this);
         subscriptionModule->subscribe(NF_ROUTE_DELETED, this);
         subscriptionModule->subscribe(NF_ROUTE_CHANGED, this);
+        subscriptionModule->subscribe(NF_INTERFACE_IPv4CONFIG_CHANGED, this);
         destinationMatcher.setPattern(par("destinationFilter"), true, true, true);
         lineColor = cFigure::Color(par("lineColor"));
         lineStyle = cFigure::parseLineStyle(par("lineStyle"));
@@ -57,7 +70,12 @@ void RoutingTableVisualizerBase::initialize(int stage)
 void RoutingTableVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
     if (signal == NF_ROUTE_ADDED || signal == NF_ROUTE_DELETED || signal == NF_ROUTE_CHANGED)
-        updateRoutes(check_and_cast<IPv4RoutingTable *>(source));
+        updateRoutes(check_and_cast<IIPv4RoutingTable *>(source));
+    else if (signal == NF_INTERFACE_IPv4CONFIG_CHANGED) {
+        auto networkNode = getContainingNode(check_and_cast<cModule *>(source));
+        L3AddressResolver addressResolver;
+        updateRoutes(addressResolver.findIPv4RoutingTableOf(networkNode));
+    }
     else
         throw cRuntimeError("Unknown signal");
 }
@@ -97,12 +115,12 @@ std::vector<IPv4Address> RoutingTableVisualizerBase::getDestinations()
     return destinations;
 }
 
-void RoutingTableVisualizerBase::addRoutes(IPv4RoutingTable *routingTable)
+void RoutingTableVisualizerBase::addRoutes(IIPv4RoutingTable *routingTable)
 {
     L3AddressResolver addressResolver;
-    auto node = getContainingNode(routingTable);
+    auto node = getContainingNode(check_and_cast<cModule *>(routingTable));
     for (auto destination : getDestinations()) {
-        if (!routingTable->isLocalAddress(destination)) {
+        if (!destination.isUnspecified() && !routingTable->isLocalAddress(destination)) {
             auto route = routingTable->findBestMatchingRoute(destination);
             if (route != nullptr) {
                 auto gateway = route->getGateway();
@@ -117,9 +135,9 @@ void RoutingTableVisualizerBase::addRoutes(IPv4RoutingTable *routingTable)
     }
 }
 
-void RoutingTableVisualizerBase::removeRoutes(IPv4RoutingTable *routingTable)
+void RoutingTableVisualizerBase::removeRoutes(IIPv4RoutingTable *routingTable)
 {
-    auto node = getContainingNode(routingTable);
+    auto node = getContainingNode(check_and_cast<cModule *>(routingTable));
     std::vector<const RouteVisualization*> removedRoutes;
     for (auto it : routeVisualizations)
         if (it.first.first == node->getId() && it.second)
@@ -130,7 +148,7 @@ void RoutingTableVisualizerBase::removeRoutes(IPv4RoutingTable *routingTable)
     }
 }
 
-void RoutingTableVisualizerBase::updateRoutes(IPv4RoutingTable *routingTable)
+void RoutingTableVisualizerBase::updateRoutes(IIPv4RoutingTable *routingTable)
 {
     removeRoutes(routingTable);
     addRoutes(routingTable);

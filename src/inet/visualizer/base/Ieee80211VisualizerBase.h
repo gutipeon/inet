@@ -59,6 +59,8 @@ class INET_API Ieee80211VisualizerBase : public VisualizerBase, public cListener
     virtual void removeIeee80211Visualization(Ieee80211Visualization *ieee80211Visualization);
 
   public:
+    virtual ~Ieee80211VisualizerBase();
+
     virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 

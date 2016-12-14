@@ -70,10 +70,12 @@ class INET_API RoutingTableVisualizerBase : public VisualizerBase, public cListe
 
     virtual std::vector<IPv4Address> getDestinations();
 
-    virtual void addRoutes(IPv4RoutingTable *routingTable);
-    virtual void removeRoutes(IPv4RoutingTable *routingTable);
-    virtual void updateRoutes(IPv4RoutingTable *routingTable);
+    virtual void addRoutes(IIPv4RoutingTable *routingTable);
+    virtual void removeRoutes(IIPv4RoutingTable *routingTable);
+    virtual void updateRoutes(IIPv4RoutingTable *routingTable);
 
+  public:
+    virtual ~RoutingTableVisualizerBase();
 };
 
 } // namespace visualizer

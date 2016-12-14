@@ -44,7 +44,7 @@ package inet.visualizer.base;
 simple PathVisualizerBase extends VisualizerBase
 {
     parameters:
-        string subscriptionModule = default(""); // module path where the visualizer subscribes for network layer signals, root module by default
+        string subscriptionModule = default("<root>"); // module path where the visualizer subscribes for network layer signals, root module by default
         string packetNameFilter = default(""); // which packets are considered to determine active routes, matches no packets by default
         string lineColor = default("auto"); // route line color, automatic by default
         string lineStyle = default("solid"); // link line style (solid, dashed, dotted)
