@@ -26,9 +26,7 @@ package inet.visualizer.base;
 // This module subscribes for packetFromLowerDroppedSignal and
 // packetFromUpperDroppedSignal on the module determined by the subscriptionModule
 // parameter. If the visualizer receives a packet dropped signal, then it stores
-// the dropped packet and starts the drop visualization. This module also
-// subscribes for mobilityStateChangedSignal to be able to follow the movement
-// of mobile nodes.
+// the dropped packet and starts the drop visualization.
 //
 // @see ~PacketDropCanvasVisualizer, ~PacketDropOsgVisualizer, ~IPacketDropVisualizer, ~PacketDropVisualizerBase
 //
@@ -37,7 +35,7 @@ simple PacketDropVisualizerBase extends VisualizerBase
     parameters:
         string subscriptionModule = default(""); // module path where the visualizer subscribes for packet drop signals, root module by default
         string packetNameFilter = default(""); // which packets are considered, matches no packets by default
-        string icon = default("msg/packet_s"); // packet drop visualizationicon
+        string icon = default("msg/packet_s"); // packet drop visualization icon
         double iconTintAmount = default(0); // colorization amount between 0 and 1, disabled by default
         string iconTintColor = default(""); // color for icon tinting, disabled by default
         string fadeOutMode @enum("realTime", "animationTime", "simulationTime") = default("realTime");

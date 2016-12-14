@@ -86,28 +86,6 @@ void PathOsgVisualizerBase::setAlpha(const PathVisualization *pathVisualization,
     material->setAlpha(osg::Material::FRONT_AND_BACK, alpha);
 }
 
-void PathOsgVisualizerBase::setPosition(cModule *node, const Coord& position) const
-{
-    for (auto it : pathVisualizations) {
-        auto path = static_cast<const PathOsgVisualization *>(it.second);
-        auto group = static_cast<osg::Group *>(path->node);
-        auto geode = static_cast<osg::Geode *>(group->getChild(0));
-        auto geometry = static_cast<osg::Geometry *>(geode->getDrawable(0));
-        auto vertices = static_cast<osg::Vec3Array *>(geometry->getVertexArray());
-        auto autoTransform = dynamic_cast<osg::AutoTransform *>(group->getChild(1));
-        for (int i = 0; i < path->moduleIds.size(); i++) {
-            if (node->getId() == path->moduleIds[i]) {
-                osg::Vec3d p(position.x, position.y, position.z + path->offset);
-                vertices->at(i) = p;
-                if (autoTransform != nullptr && i == path->moduleIds.size() - 1)
-                    autoTransform->setPosition(p);
-            }
-        }
-        geometry->dirtyBound();
-        geometry->dirtyDisplayList();
-    }
-}
-
 #endif // ifdef WITH_OSG
 
 } // namespace visualizer

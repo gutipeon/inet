@@ -43,7 +43,6 @@ class INET_API PathOsgVisualizerBase : public PathVisualizerBase
     virtual void addPathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization) override;
     virtual void removePathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization) override;
     virtual void setAlpha(const PathVisualization *pathVisualization, double alpha) const override;
-    virtual void setPosition(cModule *node, const Coord& position) const override;
 
 #else // ifdef WITH_OSG
 
@@ -52,7 +51,6 @@ class INET_API PathOsgVisualizerBase : public PathVisualizerBase
 
     virtual const PathVisualization *createPathVisualization(const std::vector<int>& path) const override { return PathVisualizerBase::createPathVisualization(path); }
     virtual void setAlpha(const PathVisualization *pathVisualization, double alpha) const override {}
-    virtual void setPosition(cModule *node, const Coord& position) const override {}
 
 #endif // ifdef WITH_OSG
 };

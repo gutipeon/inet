@@ -22,6 +22,7 @@
 #include "inet/networklayer/contract/ipv4/IPv4Address.h"
 #include "inet/networklayer/ipv4/IPv4RoutingTable.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/LineManager.h"
 
 namespace inet {
 
@@ -30,10 +31,10 @@ namespace visualizer {
 class INET_API RoutingTableVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
-    class INET_API RouteVisualization {
+    class INET_API RouteVisualization : public LineManager::ModuleLine {
       public:
-        const int nodeModuleId;
-        const int nextHopModuleId;
+        const int nodeModuleId = -1;
+        const int nextHopModuleId = -1;
 
       public:
         RouteVisualization(int nodeModuleId, int nextHopModuleId);
@@ -46,21 +47,25 @@ class INET_API RoutingTableVisualizerBase : public VisualizerBase, public cListe
     cModule *subscriptionModule = nullptr;
     inet::PatternMatcher destinationMatcher;
     cFigure::Color lineColor;
-    double lineWidth = NaN;
     cFigure::LineStyle lineStyle;
+    double lineShift = NaN;
+    const char *lineShiftMode = nullptr;
+    double lineWidth = NaN;
+    double lineContactSpacing = NaN;
+    const char *lineContactMode = nullptr;
     //@}
+
+    LineManager *lineManager = nullptr;
 
     std::map<std::pair<int, int>, const RouteVisualization *> routeVisualizations;
 
   protected:
     virtual void initialize(int stage) override;
-    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *obj DETAILS_ARG) override;
+    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *obj, cObject *details) override;
 
-    virtual void setPosition(cModule *node, const Coord& position) const = 0;
-
-    virtual const RouteVisualization *createRouteVisualization(cModule *node, cModule *nextHop) const = 0;
+    virtual const RouteVisualization *createRouteVisualization(IPv4Route *route, cModule *node, cModule *nextHop) const = 0;
     virtual const RouteVisualization *getRouteVisualization(std::pair<int, int> route);
-    virtual void addRouteVisualization(std::pair<int, int> nodeAndNextHop, const RouteVisualization *routeVisualization);
+    virtual void addRouteVisualization(const RouteVisualization *routeVisualization);
     virtual void removeRouteVisualization(const RouteVisualization *routeVisualization);
 
     virtual std::vector<IPv4Address> getDestinations();

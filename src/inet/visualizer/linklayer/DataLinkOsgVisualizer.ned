@@ -32,6 +32,6 @@ import inet.visualizer.contract.IDataLinkVisualizer;
 simple DataLinkOsgVisualizer extends LinkVisualizerBase like IDataLinkVisualizer
 {
     parameters:
-        lineColor = default("darkBlue"); // link line color, dark blue by default
+        lineColor = default("darkcyan");
         @class(DataLinkOsgVisualizer);
 }

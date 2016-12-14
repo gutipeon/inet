@@ -31,18 +31,30 @@ class INET_API TracingObstacleLossOsgVisualizer : public TracingObstacleLossVisu
 #ifdef WITH_OSG
 
   protected:
-    osg::Group *trailNode = nullptr;
+    class INET_API ObstacleLossOsgVisualization : public ObstacleLossVisualization {
+      public:
+        osg::Group *node = nullptr;
+
+      public:
+        ObstacleLossOsgVisualization(osg::Group *node) : node(node) { }
+    };
+
+  protected:
+    osg::Group *obstacleLossNode = nullptr;
 
   protected:
     virtual void initialize(int stage) override;
 
-  public:
-    virtual void obstaclePenetrated(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) override;
+    virtual const ObstacleLossVisualization *createObstacleLossVisualization(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) const override;
+    virtual void addObstacleLossVisualization(const ObstacleLossVisualization *obstacleLossVisualization) override;
+    virtual void removeObstacleLossVisualization(const ObstacleLossVisualization *obstacleLossVisualization) override;
+    virtual void setAlpha(const ObstacleLossVisualization *obstacleLossVisualization, double alpha) const override;
 
 #else // ifdef WITH_OSG
 
-  public:
-    virtual void obstaclePenetrated(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) override {}
+  protected:
+    virtual const ObstacleLossVisualization *createObstacleLossVisualizatio(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) const override { return nullptr; }
+    virtual void setAlpha(const ObstacleLossVisualization *obstacleLossVisualization, double alpha) const override { }
 
 #endif // ifdef WITH_OSG
 };

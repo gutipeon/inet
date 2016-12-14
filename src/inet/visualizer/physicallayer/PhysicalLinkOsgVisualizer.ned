@@ -32,6 +32,7 @@ import inet.visualizer.contract.IPhysicalLinkVisualizer;
 simple PhysicalLinkOsgVisualizer extends LinkVisualizerBase like IPhysicalLinkVisualizer
 {
     parameters:
-        lineColor = default("black"); // link line color, black by default
+        lineColor = default("olive");
+        lineStyle = default("dotted");
         @class(PhysicalLinkOsgVisualizer);
 }

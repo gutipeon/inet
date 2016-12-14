@@ -128,6 +128,8 @@ void MobilityOsgVisualizer::receiveSignal(cComponent *source, simsignal_t signal
         if (displayMovementTrail)
             extendMovementTrail(mobilityVisualization->trail, position);
     }
+    else
+        throw cRuntimeError("Unknown signal");
 }
 
 #endif // ifdef WITH_OSG

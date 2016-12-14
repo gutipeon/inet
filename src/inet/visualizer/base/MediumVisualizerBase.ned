@@ -30,24 +30,23 @@ simple MediumVisualizerBase extends VisualizerBase
 {
     parameters:
         string mediumModule = default("radioMedium"); // module path of the medium module that is displayed, refers to a top level submodule by default
+        string networkNodeVisualizerModule = default("^.networkNodeVisualizer"); // module path of the network node visualizer module
 
         bool displaySignals = default(false); // display signals propagating through the medium, disabled by default
-        double signalPropagationUpdateInterval @unit(s) = default(0s); // time interval between updates when there are propagating signals on the medium, no updates by default
+        double signalPropagationAnimationSpeed = default(0); // animation speed while the very beginning or end of a signal is propagating on the medium, value must be in the range (0, +inf)
+        double signalTransmissionAnimationSpeed = default(0); // animation speed while a signal is being transmitted on the medium, value must be in the range (0, +inf)
 
         bool displayTransmissions = default(false); // display an image where a transmission is currently in progress, disabled by default
-        string transmissionImage = default(""); // transmission image for ongoing transmissions, no image by default
+        string transmissionImage = default("misc/transmission"); // transmission image for ongoing transmissions
 
         bool displayReceptions = default(false); // display an image where a reception is currently in progress, disabled by default
-        string receptionImage = default(""); // reception image for ongoing receptions, no image by default
+        string receptionImage = default("misc/reception"); // reception image for ongoing receptions
 
         bool displayCommunicationRanges = default(false); // display communication ranges as circles around radios, enabled by default
         string communicationRangeColor = default("blue"); // communication range circle color, blue by default
 
         bool displayInterferenceRanges = default(false); // display interference ranges as circles around radios, disabled by default
         string interferenceRangeColor = default("gray"); // interference range circle color, gray by default
-
-        bool displayRadioFrames = default(false); // display radio frames, disabled by default
-        string radioFrameLineColor = default("black"); // radio frame line color, black by default
 
         @class(MediumVisualizerBase);
 }

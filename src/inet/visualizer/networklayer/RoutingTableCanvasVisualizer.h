@@ -44,12 +44,11 @@ class INET_API RoutingTableCanvasVisualizer : public RoutingTableVisualizerBase
 
   protected:
     virtual void initialize(int stage) override;
+    virtual void refreshDisplay() const override;
 
-    virtual void addRouteVisualization(std::pair<int, int> nodeAndNextHop, const RouteVisualization *route) override;
-    virtual void removeRouteVisualization(const RouteVisualization *route) override;
-
-    virtual void setPosition(cModule *node, const Coord& position) const override;
-    virtual const RouteVisualization *createRouteVisualization(cModule *node, cModule *nextHop) const override;
+    virtual const RouteVisualization *createRouteVisualization(IPv4Route *route, cModule *node, cModule *nextHop) const override;
+    virtual void addRouteVisualization(const RouteVisualization *routeVisualization) override;
+    virtual void removeRouteVisualization(const RouteVisualization *routeVisualization) override;
 };
 
 } // namespace visualizer

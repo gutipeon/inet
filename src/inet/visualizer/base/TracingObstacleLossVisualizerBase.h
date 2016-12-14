@@ -20,6 +20,7 @@
 
 #include "inet/physicallayer/contract/packetlevel/ITracingObstacleLoss.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/AnimationPosition.h"
 
 namespace inet {
 
@@ -30,17 +31,42 @@ using namespace inet::physicalenvironment;
 class INET_API TracingObstacleLossVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
+    class INET_API ObstacleLossVisualization {
+      public:
+        mutable AnimationPosition obstacleLossAnimationPosition;
+
+      public:
+        ObstacleLossVisualization() { }
+        virtual ~ObstacleLossVisualization() { }
+    };
+
+  protected:
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    bool displayIntersectionTrail = false;
-    bool displayFaceNormalVectorTrail = false;
+    bool displayIntersection = false;
+    bool displayFaceNormalVector = false;
+    cFigure::Color intersectionLineColor;
+    cFigure::LineStyle intersectionLineStyle;
+    double intersectionLineWidth = NaN;
+    cFigure::Color faceNormalLineColor;
+    cFigure::LineStyle faceNormalLineStyle;
+    double faceNormalLineWidth = NaN;
+    const char *fadeOutMode = nullptr;
+    double fadeOutHalfLife = NaN;
     //@}
+
+    std::vector<const ObstacleLossVisualization *> obstacleLossVisualizations;
 
   protected:
     virtual void initialize(int stage) override;
+    virtual void refreshDisplay() const override;
 
-    virtual void obstaclePenetrated(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) = 0;
+    // TODO: use ITransmission for identification?
+    virtual const ObstacleLossVisualization *createObstacleLossVisualization(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) const = 0;
+    virtual void addObstacleLossVisualization(const ObstacleLossVisualization *obstacleLossVisualization);
+    virtual void removeObstacleLossVisualization(const ObstacleLossVisualization *obstacleLossVisualization);
+    virtual void setAlpha(const ObstacleLossVisualization *obstacleLossVisualization, double alpha) const = 0;
 
   public:
     virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;

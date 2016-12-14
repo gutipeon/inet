@@ -21,6 +21,8 @@
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/AnimationPosition.h"
+#include "inet/visualizer/common/LineManager.h"
 
 namespace inet {
 
@@ -29,13 +31,9 @@ namespace visualizer {
 class INET_API PathVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
-    class INET_API PathVisualization {
+    class INET_API PathVisualization : public LineManager::ModulePath {
       public:
-        mutable double offset = NaN;
-        mutable simtime_t lastUsageSimulationTime = simTime();
-        mutable double lastUsageAnimationTime;
-        mutable double lastUsageRealTime;
-        const std::vector<int> moduleIds;
+        mutable AnimationPosition lastUsageAnimationPosition;
 
       public:
         PathVisualization(const std::vector<int>& path);
@@ -48,23 +46,29 @@ class INET_API PathVisualizerBase : public VisualizerBase, public cListener
     cModule *subscriptionModule = nullptr;
     inet::PatternMatcher packetNameMatcher;
     cFigure::Color lineColor;
+    cFigure::LineStyle lineStyle;
     double lineWidth = NaN;
+    double lineShift = NaN;
+    const char *lineShiftMode = nullptr;
+    double lineContactSpacing = NaN;
+    const char *lineContactMode = nullptr;
     const char *fadeOutMode = nullptr;
     double fadeOutHalfLife = NaN;
     //@}
 
+    LineManager *lineManager = nullptr;
     /**
      * Maps packet to module vector.
      */
     std::map<int, std::vector<int>> incompletePaths;
     /**
-     * Maps source/destination modules to multiple paths between them.
-     */
-    std::multimap<std::pair<int, int>, const PathVisualization *> pathVisualizations;
-    /**
      * Maps nodes to the number of paths that go through it.
      */
     std::map<int, int> numPaths;
+    /**
+     * Maps source/destination modules to multiple paths between them.
+     */
+    std::multimap<std::pair<int, int>, const PathVisualization *> pathVisualizations;
 
   protected:
     virtual void initialize(int stage) override;
@@ -74,19 +78,15 @@ class INET_API PathVisualizerBase : public VisualizerBase, public cListener
     virtual bool isPathElement(cModule *module) const = 0;
 
     virtual const PathVisualization *createPathVisualization(const std::vector<int>& path) const = 0;
-    virtual void setAlpha(const PathVisualization *path, double alpha) const = 0;
-    virtual void setPosition(cModule *node, const Coord& position) const = 0;
-
-    virtual const PathVisualization *getPath(std::pair<int, int> sourceAndDestination, const std::vector<int>& path);
-    virtual void addPathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *path);
-    virtual void removePathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *path);
+    virtual const PathVisualization *getPathVisualization(std::pair<int, int> sourceAndDestination, const std::vector<int>& path);
+    virtual void addPathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization);
+    virtual void removePathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization);
+    virtual void setAlpha(const PathVisualization *pathVisualization, double alpha) const = 0;
 
     virtual const std::vector<int> *getIncompletePath(int treeId);
     virtual void addToIncompletePath(int treeId, cModule *module);
     virtual void removeIncompletePath(int treeId);
 
-    virtual void updateOffsets();
-    virtual void updatePositions();
     virtual void updatePath(const std::vector<int>& path);
 
   public:

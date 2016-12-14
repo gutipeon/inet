@@ -25,8 +25,7 @@ namespace inet {
 namespace visualizer {
 
 LinkVisualizerBase::LinkVisualization::LinkVisualization(int sourceModuleId, int destinationModuleId) :
-    sourceModuleId(sourceModuleId),
-    destinationModuleId(destinationModuleId)
+    LineManager::ModuleLine(sourceModuleId, destinationModuleId)
 {
 }
 
@@ -38,31 +37,33 @@ void LinkVisualizerBase::initialize(int stage)
         subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetSentToUpperSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetReceivedFromUpperSignal, this);
-        subscriptionModule->subscribe(IMobility::mobilityStateChangedSignal, this);
         packetNameMatcher.setPattern(par("packetNameFilter"), false, true, true);
         lineColor = cFigure::Color(par("lineColor"));
-        lineWidth = par("lineWidth");
         lineStyle = cFigure::parseLineStyle(par("lineStyle"));
+        lineWidth = par("lineWidth");
+        lineShift = par("lineShift");
+        lineShiftMode = par("lineShiftMode");
+        lineContactSpacing = par("lineContactSpacing");
+        lineContactMode = par("lineContactMode");
         fadeOutMode = par("fadeOutMode");
         fadeOutHalfLife = par("fadeOutHalfLife");
+        lineManager = LineManager::getLineManager(visualizerTargetModule->getCanvas());
     }
 }
 
 void LinkVisualizerBase::refreshDisplay() const
 {
-    auto currentSimulationTime = simTime();
-    double currentAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-    double currentRealTime = getRealTime();
+    AnimationPosition currentAnimationPosition;
     std::vector<const LinkVisualization *> removedLinkVisualizations;
     for (auto it : linkVisualizations) {
         auto linkVisualization = it.second;
         double delta;
         if (!strcmp(fadeOutMode, "simulationTime"))
-            delta = (currentSimulationTime - linkVisualization->lastUsageSimulationTime).dbl();
+            delta = (currentAnimationPosition.getSimulationTime() - linkVisualization->lastUsageAnimationPosition.getSimulationTime()).dbl();
         else if (!strcmp(fadeOutMode, "animationTime"))
-            delta = currentAnimationTime - linkVisualization->lastUsageAnimationTime;
+            delta = currentAnimationPosition.getAnimationTime() - linkVisualization->lastUsageAnimationPosition.getAnimationTime();
         else if (!strcmp(fadeOutMode, "realTime"))
-            delta = currentRealTime - linkVisualization->lastUsageRealTime;
+            delta = currentAnimationPosition.getRealTime() - linkVisualization->lastUsageAnimationPosition.getRealTime();
         else
             throw cRuntimeError("Unknown fadeOutMode: %s", fadeOutMode);
         auto alpha = std::min(1.0, std::pow(2.0, -delta / fadeOutHalfLife));
@@ -121,22 +122,13 @@ void LinkVisualizerBase::updateLinkVisualization(cModule *source, cModule *desti
         addLinkVisualization(key, linkVisualization);
     }
     else {
-        linkVisualization->lastUsageSimulationTime = getSimulation()->getSimTime();
-        linkVisualization->lastUsageAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-        linkVisualization->lastUsageRealTime = getRealTime();
+        linkVisualization->lastUsageAnimationPosition = AnimationPosition();
     }
 }
 
 void LinkVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
-    if (signal == IMobility::mobilityStateChangedSignal) {
-        auto mobility = dynamic_cast<IMobility *>(object);
-        auto position = mobility->getCurrentPosition();
-        auto module = check_and_cast<cModule *>(source);
-        auto node = getContainingNode(module);
-        setPosition(node, position);
-    }
-    else if (signal == LayeredProtocolBase::packetReceivedFromUpperSignal) {
+    if (signal == LayeredProtocolBase::packetReceivedFromUpperSignal) {
         if (isLinkEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
             if (packetNameMatcher.matches(packet->getFullName())) {
@@ -161,6 +153,8 @@ void LinkVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
             }
         }
     }
+    else
+        throw cRuntimeError("Unknown signal");
 }
 
 } // namespace visualizer

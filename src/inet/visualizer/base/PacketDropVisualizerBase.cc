@@ -25,12 +25,10 @@ namespace inet {
 
 namespace visualizer {
 
-PacketDropVisualizerBase::PacketDropVisualization::PacketDropVisualization(int moduleId, cPacket *packet, simtime_t dropSimulationTime, double dropAnimationTime, int dropRealTime) :
+PacketDropVisualizerBase::PacketDropVisualization::PacketDropVisualization(int moduleId, const cPacket *packet, const Coord& position) :
     moduleId(moduleId),
     packet(packet),
-    dropSimulationTime(dropSimulationTime),
-    dropAnimationTime(dropAnimationTime),
-    dropRealTime(dropRealTime)
+    position(position)
 {
 }
 
@@ -44,7 +42,6 @@ PacketDropVisualizerBase::~PacketDropVisualizerBase()
     for (auto packetDrop : packetDropVisualizations)
         delete packetDrop->packet;
     if (subscriptionModule != nullptr) {
-        subscriptionModule->unsubscribe(IMobility::mobilityStateChangedSignal, this);
         subscriptionModule->unsubscribe(LayeredProtocolBase::packetFromLowerDroppedSignal, this);
         subscriptionModule->unsubscribe(LayeredProtocolBase::packetFromUpperDroppedSignal, this);
     }
@@ -56,7 +53,6 @@ void PacketDropVisualizerBase::initialize(int stage)
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
         subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
-        subscriptionModule->subscribe(IMobility::mobilityStateChangedSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetFromLowerDroppedSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetFromUpperDroppedSignal, this);
         packetNameMatcher.setPattern(par("packetNameFilter"), false, true, true);
@@ -71,41 +67,38 @@ void PacketDropVisualizerBase::initialize(int stage)
 
 void PacketDropVisualizerBase::refreshDisplay() const
 {
-    auto currentSimulationTime = simTime();
-    double currentAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-    double currentRealTime = getRealTime();
-    std::vector<const PacketDropVisualization *> removedPacketDrops;
+    AnimationPosition currentAnimationPosition;
+    std::vector<const PacketDropVisualization *> removedPacketDropVisualizations;
     for (auto packetDrop : packetDropVisualizations) {
         double delta;
         if (!strcmp(fadeOutMode, "simulationTime"))
-            delta = (currentSimulationTime - packetDrop->dropSimulationTime).dbl();
+            delta = (currentAnimationPosition.getSimulationTime() - packetDrop->packetDropAnimationPosition.getSimulationTime()).dbl();
         else if (!strcmp(fadeOutMode, "animationTime"))
-            delta = currentAnimationTime - packetDrop->dropAnimationTime;
+            delta = currentAnimationPosition.getAnimationTime() - packetDrop->packetDropAnimationPosition.getAnimationTime();
         else if (!strcmp(fadeOutMode, "realTime"))
-            delta = currentRealTime - packetDrop->dropRealTime;
+            delta = currentAnimationPosition.getRealTime() - packetDrop->packetDropAnimationPosition.getRealTime();
         else
             throw cRuntimeError("Unknown fadeOutMode: %s", fadeOutMode);
         auto alpha = std::min(1.0, std::pow(2.0, -delta / fadeOutHalfLife));
         if (alpha < 0.01)
-            removedPacketDrops.push_back(packetDrop);
+            removedPacketDropVisualizations.push_back(packetDrop);
         else
             setAlpha(packetDrop, alpha);
     }
-    for (auto packetDrop : removedPacketDrops) {
+    for (auto packetDrop : removedPacketDropVisualizations) {
         const_cast<PacketDropVisualizerBase *>(this)->removePacketDropVisualization(packetDrop);
         delete packetDrop;
     }
 }
 
-void PacketDropVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG)
+void PacketDropVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
-    if (signal == IMobility::mobilityStateChangedSignal) {
-        // TODO: update packet drop positions
-    }
-    else if (signal == LayeredProtocolBase::packetFromLowerDroppedSignal || signal == LayeredProtocolBase::packetFromUpperDroppedSignal) {
+    if (signal == LayeredProtocolBase::packetFromLowerDroppedSignal || signal == LayeredProtocolBase::packetFromUpperDroppedSignal) {
         if (packetNameMatcher.matches(object->getFullName()))
             addPacketDropVisualization(createPacketDropVisualization(check_and_cast<cModule*>(source), check_and_cast<cPacket*>(object)->dup()));
     }
+    else
+        throw cRuntimeError("Unknown signal");
 }
 
 void PacketDropVisualizerBase::addPacketDropVisualization(const PacketDropVisualization *packetDropVisualization)

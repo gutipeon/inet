@@ -17,9 +17,8 @@
 
 package inet.visualizer.networklayer;
 
-import inet.visualizer.base.RouteVisualizerBase;
+import inet.visualizer.base.PathVisualizerBase;
 import inet.visualizer.contract.INetworkRouteVisualizer;
-
 
 //
 // This module visualizes network routes on a 3D osg scene. It displays an
@@ -28,9 +27,9 @@ import inet.visualizer.contract.INetworkRouteVisualizer;
 // over time until the route becomes inactive unless it is reinforced by another
 // packet. The polyline automatically follows the movement of mobile nodes.
 //
-// @see ~NetworkRouteCanvasVisualizer, ~NetworkRouteVisualizer, ~RouteVisualizerBase, ~INetworkRouteVisualizer
+// @see ~NetworkRouteCanvasVisualizer, ~NetworkRouteVisualizer, ~PathVisualizerBase, ~INetworkRouteVisualizer
 //
-simple NetworkRouteOsgVisualizer extends RouteVisualizerBase like INetworkRouteVisualizer
+simple NetworkRouteOsgVisualizer extends PathVisualizerBase like INetworkRouteVisualizer
 {
     parameters:
         @class(NetworkRouteOsgVisualizer);

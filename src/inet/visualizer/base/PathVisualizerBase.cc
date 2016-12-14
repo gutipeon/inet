@@ -25,7 +25,7 @@ namespace inet {
 namespace visualizer {
 
 PathVisualizerBase::PathVisualization::PathVisualization(const std::vector<int>& path) :
-    moduleIds(path)
+    ModulePath(path)
 {
 }
 
@@ -38,40 +38,43 @@ void PathVisualizerBase::initialize(int stage)
         subscriptionModule->subscribe(LayeredProtocolBase::packetSentToUpperSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetReceivedFromUpperSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetReceivedFromLowerSignal, this);
-        subscriptionModule->subscribe(IMobility::mobilityStateChangedSignal, this);
         packetNameMatcher.setPattern(par("packetNameFilter"), false, true, true);
-        if (*par("lineColor").stringValue() != '\0')
+        if (strcmp(par("lineColor"), "auto"))
             lineColor = cFigure::Color(par("lineColor"));
+        lineStyle = cFigure::parseLineStyle(par("lineStyle"));
         lineWidth = par("lineWidth");
+        lineShift = par("lineShift");
+        lineShiftMode = par("lineShiftMode");
+        lineContactSpacing = par("lineContactSpacing");
+        lineContactMode = par("lineContactMode");
         fadeOutMode = par("fadeOutMode");
         fadeOutHalfLife = par("fadeOutHalfLife");
+        lineManager = LineManager::getLineManager(visualizerTargetModule->getCanvas());
     }
 }
 
 void PathVisualizerBase::refreshDisplay() const
 {
-    auto currentSimulationTime = simTime();
-    double currentAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-    double currentRealTime = getRealTime();
-    std::vector<const PathVisualization *> removedPaths;
+    AnimationPosition currentAnimationPosition;
+    std::vector<const PathVisualization *> removedPathVisualizations;
     for (auto it : pathVisualizations) {
-        auto path = it.second;
+        auto pathVisualization = it.second;
         double delta;
         if (!strcmp(fadeOutMode, "simulationTime"))
-            delta = (currentSimulationTime - path->lastUsageSimulationTime).dbl();
+            delta = (currentAnimationPosition.getSimulationTime() - pathVisualization->lastUsageAnimationPosition.getSimulationTime()).dbl();
         else if (!strcmp(fadeOutMode, "animationTime"))
-            delta = currentAnimationTime - path->lastUsageAnimationTime;
+            delta = currentAnimationPosition.getAnimationTime() - pathVisualization->lastUsageAnimationPosition.getAnimationTime();
         else if (!strcmp(fadeOutMode, "realTime"))
-            delta = currentRealTime - path->lastUsageRealTime;
+            delta = currentAnimationPosition.getRealTime() - pathVisualization->lastUsageAnimationPosition.getRealTime();
         else
             throw cRuntimeError("Unknown fadeOutMode: %s", fadeOutMode);
         auto alpha = std::min(1.0, std::pow(2.0, -delta / fadeOutHalfLife));
         if (alpha < 0.01)
-            removedPaths.push_back(path);
+            removedPathVisualizations.push_back(pathVisualization);
         else
-            setAlpha(path, alpha);
+            setAlpha(pathVisualization, alpha);
     }
-    for (auto path : removedPaths) {
+    for (auto path : removedPathVisualizations) {
         auto sourceAndDestination = std::pair<int, int>(path->moduleIds.front(), path->moduleIds.back());
         const_cast<PathVisualizerBase *>(this)->removePathVisualization(sourceAndDestination, path);
         delete path;
@@ -83,7 +86,7 @@ const PathVisualizerBase::PathVisualization *PathVisualizerBase::createPathVisua
     return new PathVisualization(path);
 }
 
-const PathVisualizerBase::PathVisualization *PathVisualizerBase::getPath(std::pair<int, int> sourceAndDestination, const std::vector<int>& path)
+const PathVisualizerBase::PathVisualization *PathVisualizerBase::getPathVisualization(std::pair<int, int> sourceAndDestination, const std::vector<int>& path)
 {
     auto range = pathVisualizations.equal_range(sourceAndDestination);
     for (auto it = range.first; it != range.second; it++)
@@ -92,24 +95,20 @@ const PathVisualizerBase::PathVisualization *PathVisualizerBase::getPath(std::pa
     return nullptr;
 }
 
-void PathVisualizerBase::addPathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *path)
+void PathVisualizerBase::addPathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization)
 {
-    pathVisualizations.insert(std::pair<std::pair<int, int>, const PathVisualization *>(sourceAndDestination, path));
-    updateOffsets();
-    updatePositions();
+    pathVisualizations.insert(std::pair<std::pair<int, int>, const PathVisualization *>(sourceAndDestination, pathVisualization));
 }
 
-void PathVisualizerBase::removePathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *path)
+void PathVisualizerBase::removePathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization)
 {
     auto range = pathVisualizations.equal_range(sourceAndDestination);
     for (auto it = range.first; it != range.second; it++) {
-        if (it->second == path) {
+        if (it->second == pathVisualization) {
             pathVisualizations.erase(it);
             break;
         }
     }
-    updateOffsets();
-    updatePositions();
 }
 
 const std::vector<int> *PathVisualizerBase::getIncompletePath(int treeId)
@@ -131,61 +130,22 @@ void PathVisualizerBase::removeIncompletePath(int treeId)
     incompletePaths.erase(incompletePaths.find(treeId));
 }
 
-void PathVisualizerBase::updateOffsets()
-{
-    numPaths.clear();
-    for (auto it : pathVisualizations) {
-        auto path = it.second;
-        int count = 0;
-        int maxNumPath = 0;
-        for (auto id : path->moduleIds) {
-            int numPath = numPaths[id];
-            if (numPath == maxNumPath)
-                count++;
-            else if (numPath > maxNumPath) {
-                count = 1;
-                maxNumPath = numPath;
-            }
-            numPaths[id] = numPath + 1;
-        }
-        path->offset = 3 * (maxNumPath + (count > 1 ? 1 : 0));
-    }
-}
-
-void PathVisualizerBase::updatePositions()
-{
-    for (auto it : numPaths) {
-        auto id = it.first;
-        auto node = getSimulation()->getModule(id);
-        setPosition(node, getPosition(node));
-    }
-}
-
 void PathVisualizerBase::updatePath(const std::vector<int>& moduleIds)
 {
     auto key = std::pair<int, int>(moduleIds.front(), moduleIds.back());
-    const PathVisualization *path = getPath(key, moduleIds);
+    const PathVisualization *path = getPathVisualization(key, moduleIds);
     if (path == nullptr) {
         path = createPathVisualization(moduleIds);
         addPathVisualization(key, path);
     }
     else {
-        path->lastUsageSimulationTime = getSimulation()->getSimTime();
-        path->lastUsageAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-        path->lastUsageRealTime = getRealTime();
+        path->lastUsageAnimationPosition = AnimationPosition();
     }
 }
 
 void PathVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
-    if (signal == IMobility::mobilityStateChangedSignal) {
-        auto mobility = dynamic_cast<IMobility *>(object);
-        auto position = mobility->getCurrentPosition();
-        auto module = check_and_cast<cModule *>(source);
-        auto node = getContainingNode(module);
-        setPosition(node, position);
-    }
-    else if (signal == LayeredProtocolBase::packetReceivedFromUpperSignal) {
+    if (signal == LayeredProtocolBase::packetReceivedFromUpperSignal) {
         if (isPathEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
             if (packetNameMatcher.matches(packet->getFullName())) {
@@ -227,6 +187,8 @@ void PathVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
             }
         }
     }
+    else
+        throw cRuntimeError("Unknown signal");
 }
 
 } // namespace visualizer

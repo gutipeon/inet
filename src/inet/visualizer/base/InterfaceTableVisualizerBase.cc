@@ -91,42 +91,44 @@ std::string InterfaceTableVisualizerBase::getVisualizationText(const InterfaceEn
         throw cRuntimeError("Unknown content parameter");
 }
 
-void InterfaceTableVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG)
+void InterfaceTableVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
     if (signal == NF_INTERFACE_CREATED) {
-        if (nodeMatcher.matches(source->getFullPath().c_str())) {
+        auto networkNode = getContainingNode(static_cast<cModule *>(source));
+        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntry = static_cast<InterfaceEntry *>(object);
             if (interfaceMatcher.matches(interfaceEntry->getFullName())) {
-                auto networkNode = getContainingNode(static_cast<cModule *>(source));
                 auto interfaceVisualization = createInterfaceVisualization(networkNode, interfaceEntry);
                 addInterfaceVisualization(interfaceVisualization);
             }
         }
     }
-    if (signal == NF_INTERFACE_DELETED) {
-        if (nodeMatcher.matches(source->getFullPath().c_str())) {
+    else if (signal == NF_INTERFACE_DELETED) {
+        auto networkNode = getContainingNode(static_cast<cModule *>(source));
+        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntry = static_cast<InterfaceEntry *>(object);
             if (interfaceMatcher.matches(interfaceEntry->getFullName())) {
-                auto networkNode = getContainingNode(static_cast<cModule *>(source));
                 auto interfaceVisualization = getInterfaceVisualization(networkNode, interfaceEntry);
                 removeInterfaceVisualization(interfaceVisualization);
             }
         }
     }
     else if (signal == NF_INTERFACE_CONFIG_CHANGED || signal == NF_INTERFACE_IPv4CONFIG_CHANGED) {
-        if (object != nullptr && nodeMatcher.matches(source->getFullPath().c_str())) {
+        auto networkNode = getContainingNode(static_cast<cModule *>(source));
+        if (object != nullptr && nodeMatcher.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntryDetails = static_cast<InterfaceEntryChangeDetails *>(object);
             auto interfaceEntry = interfaceEntryDetails->getInterfaceEntry();
             auto fieldId = interfaceEntryDetails->getFieldId();
             if (fieldId == InterfaceEntry::F_IPV4_DATA || fieldId == IPv4InterfaceData::F_IP_ADDRESS) {
                 if (interfaceMatcher.matches(interfaceEntry->getFullName())) {
-                    auto networkNode = getContainingNode(static_cast<cModule *>(source));
                     auto interfaceVisualization = getInterfaceVisualization(networkNode, interfaceEntry);
                     refreshInterfaceVisualization(interfaceVisualization, interfaceEntry);
                 }
             }
         }
     }
+    else
+        throw cRuntimeError("Unknown signal");
 }
 
 } // namespace visualizer

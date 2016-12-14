@@ -28,23 +28,33 @@ namespace visualizer {
 class INET_API MobilityVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
+    class INET_API MobilityVisualization {
+      public:
+        IMobility *mobility = nullptr;
+
+      public:
+        MobilityVisualization(IMobility *mobility);
+    };
+  protected:
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
     // orientation
     bool displayOrientation = false;
+    double orientationArcSize = NaN;
     cFigure::Color orientationLineColor;
-    double orientationLineWidth = -1;
+    double orientationLineWidth = NaN;
     // velocity
     bool displayVelocity = false;
+    double velocityArrowScale = NaN;
     cFigure::Color velocityLineColor;
-    double velocityLineWidth = -1;
+    double velocityLineWidth = NaN;
     cFigure::LineStyle velocityLineStyle;
     // movement trail
     bool displayMovementTrail = false;
     bool autoMovementTrailLineColor = false;
     cFigure::Color movementTrailLineColor;
-    double movementTrailLineWidth = -1;
+    double movementTrailLineWidth = NaN;
     int trailLength = -1;
     //@}
 

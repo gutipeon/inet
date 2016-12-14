@@ -28,7 +28,15 @@ simple TracingObstacleLossVisualizerBase extends VisualizerBase
 {
     parameters:
         string subscriptionModule = default(""); // module path where the visualizer subscribes for obstacle loss signals, root module by default
-        bool displayIntersectionTrail = default(false); // display instersections of transmissions and physical objects, disabled by default
-        bool displayFaceNormalVectorTrail = default(false); // display face normal vectors of instersections, disabled by default
+        bool displayIntersection = default(false); // display instersections of transmissions and physical objects, disabled by default
+        bool displayFaceNormalVector = default(false); // display face normal vectors of instersections, disabled by default
+        string intersectionLineColor = default("red");
+        string intersectionLineStyle = default("solid");
+        double intersectionLineWidth = default(1);
+        string faceNormalLineColor = default("grey");
+        string faceNormalLineStyle = default("solid");
+        double faceNormalLineWidth = default(1);
+        string fadeOutMode @enum("realTime", "animationTime", "simulationTime") = default("realTime");
+        double fadeOutHalfLife @unit(s) = default(1s); // how quickly link breaks fade away, opacity halves every second by default
         @class(TracingObstacleLossVisualizerBase);
 }

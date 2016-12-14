@@ -22,7 +22,7 @@ import inet.visualizer.contract.ITransportRouteVisualizer;
 //
 // This module integrates canvas and osg network route visualizers into a single module.
 //
-// @see ~TransportRouteCanvasVisualizer, ~TransportRouteOsgVisualizer, ~RouteVisualizerBase, ~ITransportRouteVisualizer
+// @see ~TransportRouteCanvasVisualizer, ~TransportRouteOsgVisualizer, ~PathVisualizerBase, ~ITransportRouteVisualizer
 //
 module TransportRouteVisualizer like ITransportRouteVisualizer
 {

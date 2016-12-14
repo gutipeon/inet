@@ -45,9 +45,10 @@ class INET_API TransportConnectionVisualizerBase : public VisualizerBase, public
     //@{
     cModule *subscriptionModule = nullptr;
     PatternMatcher nodeMatcher;
+    const char *icon = nullptr;
     //@}
 
-    std::vector<const TransportConnectionVisualization *> connections;
+    std::vector<const TransportConnectionVisualization *> connectionVisualizations;
 
   protected:
     virtual void initialize(int stage) override;
@@ -57,7 +58,7 @@ class INET_API TransportConnectionVisualizerBase : public VisualizerBase, public
     virtual void removeConnectionVisualization(const TransportConnectionVisualization *connectionVisualization);
 
   public:
-    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG) override;
+    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 
 } // namespace visualizer

@@ -16,9 +16,6 @@
 //
 
 #include "inet/common/figures/BoxedLabelFigure.h"
-#include <omnetpp/ccanvas.h>
-#include <omnetpp/cenvir.h>
-#include <omnetpp/csimulation.h>
 
 namespace inet {
 
@@ -34,7 +31,7 @@ BoxedLabelFigure::BoxedLabelFigure(const char *name) :
     rectangleFigure->setLineColor(cFigure::BLACK);
     addFigure(rectangleFigure);
     addFigure(labelFigure);
-    setText("");
+    setText(" "); // TODO: empty string causes negative width/height in Tkenv
 }
 
 const cFigure::Rectangle& BoxedLabelFigure::getBounds() const
@@ -69,7 +66,7 @@ const char *BoxedLabelFigure::getText() const
 
 void BoxedLabelFigure::setText(const char *text)
 {
-    int width, height, ascent;
+    double width, height, ascent;
     getSimulation()->getEnvir()->getTextExtent(labelFigure->getFont(), text, width, height, ascent);
     rectangleFigure->setBounds(cFigure::Rectangle(0, 0, width + spacing * 2, height + spacing * 2));
     labelFigure->setText(text);

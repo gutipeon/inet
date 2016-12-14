@@ -31,7 +31,23 @@ using namespace inet::physicallayer;
 class INET_API TracingObstacleLossCanvasVisualizer : public TracingObstacleLossVisualizerBase
 {
   protected:
+    class INET_API ObstacleLossCanvasVisualization : public ObstacleLossVisualization {
+      public:
+        cLineFigure *intersectionFigure = nullptr;
+        cLineFigure *faceNormalFigure1 = nullptr;
+        cLineFigure *faceNormalFigure2 = nullptr;
+
+      public:
+        ObstacleLossCanvasVisualization(cLineFigure* intersectionFigure, cLineFigure* faceNormalFigure1, cLineFigure* faceNormalFigure2);
+        virtual ~ObstacleLossCanvasVisualization();
+    };
+
+  protected:
+    /** @name Parameters */
+    //@{
     double zIndex = NaN;
+    //@}
+
     /** @name Graphics */
     //@{
     /**
@@ -39,16 +55,18 @@ class INET_API TracingObstacleLossCanvasVisualizer : public TracingObstacleLossV
      */
     const CanvasProjection *canvasProjection = nullptr;
     /**
-     * The trail figures that represent the last couple of obstacle intersections.
+     * The layer figure that contains the figures representing the obstacle losses.
      */
-    TrailFigure *intersectionTrail = nullptr;
+    cGroupFigure *obstacleLossLayer = nullptr;
     //@}
 
   protected:
     virtual void initialize(int stage) override;
 
-  public:
-    virtual void obstaclePenetrated(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) override;
+    virtual const ObstacleLossVisualization *createObstacleLossVisualization(const IPhysicalObject *object, const Coord& intersection1, const Coord& intersection2, const Coord& normal1, const Coord& normal2) const override;
+    virtual void addObstacleLossVisualization(const ObstacleLossVisualization* obstacleLossVisualization) override;
+    virtual void removeObstacleLossVisualization(const ObstacleLossVisualization* obstacleLossVisualization) override;
+    virtual void setAlpha(const ObstacleLossVisualization *obstacleLossVisualization, double alpha) const override;
 };
 
 } // namespace visualizer

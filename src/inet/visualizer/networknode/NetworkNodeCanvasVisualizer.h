@@ -29,11 +29,13 @@ namespace visualizer {
 class INET_API NetworkNodeCanvasVisualizer : public NetworkNodeVisualizerBase
 {
   protected:
+    const CanvasProjection *canvasProjection = nullptr;
     double zIndex = NaN;
     std::map<const cModule *, NetworkNodeCanvasVisualization *> networkNodeVisualizations;
 
   protected:
     virtual void initialize(int stage) override;
+    virtual void refreshDisplay() const override;
 
     virtual NetworkNodeCanvasVisualization *createNetworkNodeVisualization(cModule *networkNode) const;
     virtual void setNetworkNodeVisualization(const cModule *networkNode, NetworkNodeCanvasVisualization *networkNodeVisualization);

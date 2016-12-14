@@ -21,6 +21,8 @@
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/AnimationPosition.h"
+#include "inet/visualizer/common/LineManager.h"
 
 namespace inet {
 
@@ -29,13 +31,9 @@ namespace visualizer {
 class INET_API LinkVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
-    class INET_API LinkVisualization {
+    class INET_API LinkVisualization : public LineManager::ModuleLine {
       public:
-        mutable simtime_t lastUsageSimulationTime = simTime();
-        mutable double lastUsageAnimationTime;
-        mutable double lastUsageRealTime;
-        const int sourceModuleId;
-        const int destinationModuleId;
+        mutable AnimationPosition lastUsageAnimationPosition;
 
       public:
         LinkVisualization(int sourceModuleId, int destinationModuleId);
@@ -48,12 +46,17 @@ class INET_API LinkVisualizerBase : public VisualizerBase, public cListener
     cModule *subscriptionModule = nullptr;
     PatternMatcher packetNameMatcher;
     cFigure::Color lineColor;
-    double lineWidth = NaN;
     cFigure::LineStyle lineStyle;
+    double lineWidth = NaN;
+    double lineShift = NaN;
+    const char *lineShiftMode = nullptr;
+    double lineContactSpacing = NaN;
+    const char *lineContactMode = nullptr;
     const char *fadeOutMode = nullptr;
     double fadeOutHalfLife = NaN;
     //@}
 
+    LineManager *lineManager = nullptr;
     /**
      * Maps packet to last module.
      */
@@ -69,13 +72,11 @@ class INET_API LinkVisualizerBase : public VisualizerBase, public cListener
 
     virtual bool isLinkEnd(cModule *module) const = 0;
 
-    virtual void setAlpha(const LinkVisualization *linkVisualization, double alpha) const = 0;
-    virtual void setPosition(cModule *node, const Coord& position) const = 0;
-
     virtual const LinkVisualization *createLinkVisualization(cModule *source, cModule *destination) const = 0;
     virtual const LinkVisualization *getLinkVisualization(std::pair<int, int> linkVisualization);
     virtual void addLinkVisualization(std::pair<int, int> sourceAndDestination, const LinkVisualization *linkVisualization);
     virtual void removeLinkVisualization(const LinkVisualization *linkVisualization);
+    virtual void setAlpha(const LinkVisualization *linkVisualization, double alpha) const = 0;
 
     virtual cModule *getLastModule(int treeId);
     virtual void setLastModule(int treeId, cModule *lastModule);

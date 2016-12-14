@@ -32,8 +32,8 @@ class INET_API InterfaceTableVisualizerBase : public VisualizerBase, public cLis
   protected:
     class INET_API InterfaceVisualization {
       public:
-        int networkNodeId = -1;
-        int interfaceId = -1;
+        const int networkNodeId = -1;
+        const int interfaceId = -1;
 
       public:
         InterfaceVisualization(int networkNodeId, int interfaceId);
@@ -68,7 +68,7 @@ class INET_API InterfaceTableVisualizerBase : public VisualizerBase, public cLis
   public:
     virtual ~InterfaceTableVisualizerBase();
 
-    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG) override;
+    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 
 } // namespace visualizer

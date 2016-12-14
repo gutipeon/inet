@@ -15,24 +15,39 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __INET_PHYSICALLINKOSGVISUALIZER_H
-#define __INET_PHYSICALLINKOSGVISUALIZER_H
+#ifndef __INET_ANIMATIONPOSITION_H
+#define __INET_ANIMATIONPOSITION_H
 
-#include "inet/visualizer/base/LinkOsgVisualizerBase.h"
+#include "inet/common/INETDefs.h"
 
 namespace inet {
 
 namespace visualizer {
 
-class INET_API PhysicalLinkOsgVisualizer : public LinkOsgVisualizerBase
+class INET_API AnimationPosition
 {
   protected:
-    virtual bool isLinkEnd(cModule *module) const override;
+    simtime_t simulationTime;
+    double animationTime;
+    double realTime;
+
+  protected:
+    double computeRealTime() const;
+
+  public:
+    AnimationPosition();
+    AnimationPosition(simtime_t simulationTime, double animationTime, double realTime);
+
+    simtime_t getSimulationTime() const { return simulationTime; }
+    double getAnimationTime() const { return animationTime; }
+    double getRealTime() const { return realTime; }
+
+    AnimationPosition& operator=(const AnimationPosition& other);
 };
 
 } // namespace visualizer
 
 } // namespace inet
 
-#endif // ifndef __INET_PHYSICALLINKOSGVISUALIZER_H
+#endif // ifndef __INET_ANIMATIONPOSITION_H
 

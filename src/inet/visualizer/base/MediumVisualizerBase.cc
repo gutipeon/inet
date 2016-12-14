@@ -44,15 +44,16 @@ void MediumVisualizerBase::initialize(int stage)
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
         displaySignals = par("displaySignals");
-        signalPropagationUpdateInterval = par("signalPropagationUpdateInterval");
+        signalPropagationAnimationSpeed = par("signalPropagationAnimationSpeed");
+        signalTransmissionAnimationSpeed = par("signalTransmissionAnimationSpeed");
         displayTransmissions = par("displayTransmissions");
         displayReceptions = par("displayReceptions");
-        displayRadioFrames = par("displayRadioFrames");
-        radioFrameLineColor = cFigure::Color(par("radioFrameLineColor"));
         displayInterferenceRanges = par("displayInterferenceRanges");
         interferenceRangeColor = cFigure::Color(par("interferenceRangeColor"));
         displayCommunicationRanges = par("displayCommunicationRanges");
         communicationRangeColor = cFigure::Color(par("communicationRangeColor"));
+        signalPropagationAnimationSpeed = par("signalPropagationAnimationSpeed");
+        signalTransmissionAnimationSpeed = par("signalTransmissionAnimationSpeed");
         radioMedium = getModuleFromPar<IRadioMedium>(par("mediumModule"), this, false);
         if (radioMedium != nullptr) {
             cModule *radioMediumModule = check_and_cast<cModule *>(radioMedium);
@@ -68,33 +69,14 @@ void MediumVisualizerBase::initialize(int stage)
     }
 }
 
-simtime_t MediumVisualizerBase::getNextSignalPropagationUpdateTime(const ITransmission *transmission)
+void MediumVisualizerBase::handleParameterChange(const char *name)
 {
-    simtime_t now = simTime();
-    ICommunicationCache *communicationCache = const_cast<ICommunicationCache *>(radioMedium->getCommunicationCache());
-    const IMediumLimitCache *mediumLimitCache = radioMedium->getMediumLimitCache();
-    const simtime_t transmissionStartTime = transmission->getStartTime();
-    const simtime_t transmissionEndTime = transmission->getEndTime();
-    const simtime_t interferenceEndTime = communicationCache->getCachedInterferenceEndTime(transmission);
-    simtime_t maxPropagationTime = interferenceEndTime - transmissionEndTime - mediumLimitCache->getMaxTransmissionDuration();
-    if (transmissionStartTime <= now && now < transmissionStartTime + maxPropagationTime) {
-        simtime_t nextUpdateTime = now + signalPropagationUpdateInterval;
-        return nextUpdateTime > transmissionStartTime + maxPropagationTime ? transmissionStartTime + maxPropagationTime : nextUpdateTime;
+    if (name != nullptr) {
+        if (!strcmp(name, "signalPropagationAnimationSpeed"))
+            signalPropagationAnimationSpeed = par("signalPropagationAnimationSpeed");
+        else if (!strcmp(name, "signalTransmissionAnimationSpeed"))
+            signalTransmissionAnimationSpeed = par("signalTransmissionAnimationSpeed");
     }
-    else if (transmissionEndTime <= now && now < transmissionEndTime + maxPropagationTime) {
-        simtime_t nextUpdateTime = now + signalPropagationUpdateInterval;
-        return nextUpdateTime > transmissionEndTime + maxPropagationTime ? transmissionEndTime + maxPropagationTime : nextUpdateTime;
-    }
-    else if (transmissionStartTime + maxPropagationTime <= now && now < transmissionEndTime) {
-        simtime_t nextUpdateTime = now + signalPropagationUpdateInterval + 2 * (now - transmissionStartTime - maxPropagationTime);
-        return nextUpdateTime > transmissionEndTime ? transmissionEndTime : nextUpdateTime;
-    }
-    else if (transmissionEndTime + maxPropagationTime <= now && now < interferenceEndTime) {
-        simtime_t nextUpdateTime = now + signalPropagationUpdateInterval + 2 * (now - transmissionEndTime - maxPropagationTime);
-        return nextUpdateTime > interferenceEndTime ? interferenceEndTime : nextUpdateTime;
-    }
-    else
-        return SimTime::getMaxTime();
 }
 
 void MediumVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
@@ -115,6 +97,27 @@ void MediumVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal,
         receptionStarted(check_and_cast<IReception *>(object));
     else if (signal == IRadioMedium::receptionEndedSignal)
         receptionEnded(check_and_cast<IReception *>(object));
+    else
+        throw cRuntimeError("Unknown signal");
+}
+
+bool MediumVisualizerBase::isSignalPropagationInProgress(const ITransmission *transmission) const
+{
+    simtime_t now = simTime();
+    ICommunicationCache *communicationCache = const_cast<ICommunicationCache *>(radioMedium->getCommunicationCache());
+    const IMediumLimitCache *mediumLimitCache = radioMedium->getMediumLimitCache();
+    const simtime_t transmissionStartTime = transmission->getStartTime();
+    const simtime_t transmissionEndTime = transmission->getEndTime();
+    const simtime_t interferenceEndTime = communicationCache->getCachedInterferenceEndTime(transmission);
+    simtime_t maxPropagationTime = interferenceEndTime - transmissionEndTime - mediumLimitCache->getMaxTransmissionDuration();
+    return (transmissionStartTime <= now && now < transmissionStartTime + maxPropagationTime) ||
+           (transmissionEndTime <= now && now < transmissionEndTime + maxPropagationTime);
+}
+
+bool MediumVisualizerBase::isSignalTransmissionInProgress(const ITransmission *transmission) const
+{
+    simtime_t now = simTime();
+    return transmission->getStartTime() <= now && now < transmission->getEndTime();
 }
 
 } // namespace visualizer

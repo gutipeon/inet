@@ -42,10 +42,10 @@ class INET_API MediumVisualizerBase : public VisualizerBase, public cListener
     //@{
     IRadioMedium *radioMedium = nullptr;
     bool displaySignals = false;
-    simtime_t signalPropagationUpdateInterval = NaN;
+    double signalPropagationAnimationSpeed = NaN;
+    double signalTransmissionAnimationSpeed = NaN;
     bool displayTransmissions = false;
     bool displayReceptions = false;
-    bool displayRadioFrames = false;
     cFigure::Color radioFrameLineColor;
     bool displayCommunicationRanges = false;
     cFigure::Color communicationRangeColor;
@@ -55,8 +55,10 @@ class INET_API MediumVisualizerBase : public VisualizerBase, public cListener
 
   protected:
     virtual void initialize(int stage) override;
+    virtual void handleParameterChange(const char *name) override;
 
-    virtual simtime_t getNextSignalPropagationUpdateTime(const ITransmission *transmission);
+    virtual bool isSignalPropagationInProgress(const ITransmission *transmission) const;
+    virtual bool isSignalTransmissionInProgress(const ITransmission *transmission) const;
 
     virtual void radioAdded(const IRadio *radio) = 0;
     virtual void radioRemoved(const IRadio *radio) = 0;

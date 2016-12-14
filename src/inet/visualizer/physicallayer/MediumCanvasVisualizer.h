@@ -39,8 +39,16 @@ class INET_API MediumCanvasVisualizer : public MediumVisualizerBase
     double zIndex = NaN;
     const CanvasProjection *canvasProjection = nullptr;
     SignalShape signalShape = SIGNAL_SHAPE_RING;
-    cImageFigure *transmissionImage = nullptr;
-    cImageFigure *receptionImage = nullptr;
+    double signalOpacity = NaN;
+    const char *signalColor = nullptr;
+    int signalRingCount = -1;
+    double signalRingSize = NaN;
+    double signalFadingDistance = NaN;
+    double signalFadingFactor = NaN;
+    int signalWaveCount = -1;
+    double signalWaveLength = NaN;
+    double signalWaveWidth = NaN;
+    double signalWaveFadingAnimationSpeedFactor = NaN;
     bool displayCommunicationHeat = false;
     int communicationHeatMapSize = 100;
     //@}
@@ -53,17 +61,13 @@ class INET_API MediumCanvasVisualizer : public MediumVisualizerBase
      */
     std::vector<const ITransmission *> transmissions;
     /**
-     * The list of ongoing transmission figures.
+     * The list of radio figures.
      */
-    std::map<const ITransmission *, cFigure *> transmissionFigures;
-    //@}
-
-    /** @name Timer */
-    //@{
+    std::map<const IRadio *, cFigure *> radioFigures;
     /**
-     * The timer message that is used to update the canvas when propagating signals exist.
+     * The propagating signal figures.
      */
-    cMessage *signalPropagationUpdateTimer = nullptr;
+    std::map<const ITransmission *, cFigure *> signalFigures;
     //@}
 
     /** @name Figures */
@@ -71,11 +75,7 @@ class INET_API MediumCanvasVisualizer : public MediumVisualizerBase
     /**
      * The layer figure that contains the figures representing the ongoing communications.
      */
-    cGroupFigure *communicationLayer = nullptr;
-    /**
-     * The layer figure that contains figures representing the recent radio frame sends.
-     */
-    cGroupFigure *radioFrameLayer = nullptr;
+    cGroupFigure *signalLayer = nullptr;
     /**
      * The heat map figure that shows the recent successful communications.
      */
@@ -84,14 +84,19 @@ class INET_API MediumCanvasVisualizer : public MediumVisualizerBase
 
   protected:
     virtual void initialize(int stage) override;
-    virtual void handleMessage(cMessage *message) override;
     virtual void refreshDisplay() const override;
+    virtual void setAnimationSpeed() const;
 
-    virtual cFigure *getCachedFigure(const ITransmission *transmission) const;
-    virtual void setCachedFigure(const ITransmission *transmission, cFigure *figure);
-    virtual void removeCachedFigure(const ITransmission *transmission);
+    virtual cFigure *getRadioFigure(const IRadio *radio) const;
+    virtual void setRadioFigure(const IRadio *radio, cFigure *figure);
+    virtual cFigure *removeRadioFigure(const IRadio *radio);
 
-    virtual void scheduleSignalPropagationUpdateTimer();
+    virtual cFigure *getSignalFigure(const ITransmission *transmission) const;
+    virtual void setSignalFigure(const ITransmission *transmission, cFigure *figure);
+    virtual cFigure *removeSignalFigure(const ITransmission *transmission);
+
+    virtual cGroupFigure *createSignalFigure(const ITransmission *transmission) const;
+    virtual void refreshSignalFigure(const ITransmission *transmission) const;
 
     virtual void radioAdded(const IRadio *radio) override;
     virtual void radioRemoved(const IRadio *radio) override;
@@ -103,9 +108,6 @@ class INET_API MediumCanvasVisualizer : public MediumVisualizerBase
     virtual void transmissionEnded(const ITransmission *transmission) override;
     virtual void receptionStarted(const IReception *reception) override;
     virtual void receptionEnded(const IReception *reception) override;
-
-  public:
-    virtual ~MediumCanvasVisualizer();
 };
 
 } // namespace visualizer

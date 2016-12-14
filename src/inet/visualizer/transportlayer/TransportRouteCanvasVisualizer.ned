@@ -17,7 +17,7 @@
 
 package inet.visualizer.transportlayer;
 
-import inet.visualizer.base.RouteVisualizerBase;
+import inet.visualizer.base.PathVisualizerBase;
 import inet.visualizer.contract.ITransportRouteVisualizer;
 
 //
@@ -29,9 +29,9 @@ import inet.visualizer.contract.ITransportRouteVisualizer;
 // time until the route becomes inactive unless it is reinforced by another
 // packet. The polyline automatically follows the movement of mobile nodes.
 //
-// @see ~TransportRouteOsgVisualizer, ~TransportRouteVisualizer, ~RouteVisualizerBase, ~ITransportRouteVisualizer
+// @see ~TransportRouteOsgVisualizer, ~TransportRouteVisualizer, ~PathVisualizerBase, ~ITransportRouteVisualizer
 //
-simple TransportRouteCanvasVisualizer extends RouteVisualizerBase like ITransportRouteVisualizer
+simple TransportRouteCanvasVisualizer extends PathVisualizerBase like ITransportRouteVisualizer
 {
     parameters:
         double zIndex = default(0); // determines the drawing order of figures relative to other visualizers

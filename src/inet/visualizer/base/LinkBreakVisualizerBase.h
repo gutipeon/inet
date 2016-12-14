@@ -21,6 +21,7 @@
 #include "inet/common/PatternMatcher.h"
 #include "inet/linklayer/common/MACAddress.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/AnimationPosition.h"
 
 namespace inet {
 
@@ -31,14 +32,12 @@ class INET_API LinkBreakVisualizerBase : public VisualizerBase, public cListener
   protected:
     class INET_API LinkBreakVisualization {
       public:
-        const int transmitterModuleId;
-        const int receiverModuleId;
-        mutable simtime_t breakSimulationTime;
-        mutable double breakAnimationTime;
-        mutable double breakRealTime;
+        mutable AnimationPosition linkBreakAnimationPosition;
+        const int transmitterModuleId = -1;
+        const int receiverModuleId = -1;
 
       public:
-        LinkBreakVisualization(int transmitterModuleId, int receiverModuleId, simtime_t breakSimulationTime, double breakAnimationTime, double breakRealTime);
+        LinkBreakVisualization(int transmitterModuleId, int receiverModuleId);
         virtual ~LinkBreakVisualization() {}
     };
 
@@ -59,13 +58,12 @@ class INET_API LinkBreakVisualizerBase : public VisualizerBase, public cListener
   protected:
     virtual void initialize(int stage) override;
     virtual void refreshDisplay() const override;
-    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG) override;
+    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 
-    virtual void setPosition(cModule *node, const Coord& position) const = 0;
-    virtual void setAlpha(const LinkBreakVisualization *linkBreakVisualization, double alpha) const = 0;
     virtual const LinkBreakVisualization *createLinkBreakVisualization(cModule *transmitter, cModule *receiver) const = 0;
     virtual void addLinkBreakVisualization(const LinkBreakVisualization *linkBreakVisualization);
     virtual void removeLinkBreakVisualization(const LinkBreakVisualization *linkBreakVisualization);
+    virtual void setAlpha(const LinkBreakVisualization *linkBreakVisualization, double alpha) const = 0;
 
     virtual cModule *findNode(MACAddress address);
 };

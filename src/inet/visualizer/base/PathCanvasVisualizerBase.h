@@ -44,12 +44,12 @@ class INET_API PathCanvasVisualizerBase : public PathVisualizerBase
 
   protected:
     virtual void initialize(int stage) override;
+    virtual void refreshDisplay() const override;
 
     virtual const PathVisualization *createPathVisualization(const std::vector<int>& path) const override;
     virtual void addPathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization) override;
     virtual void removePathVisualization(std::pair<int, int> sourceAndDestination, const PathVisualization *pathVisualization) override;
     virtual void setAlpha(const PathVisualization *pathVisualization, double alpha) const override;
-    virtual void setPosition(cModule *node, const Coord& position) const override;
 };
 
 } // namespace visualizer

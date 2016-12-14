@@ -15,6 +15,8 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
+#include "inet/common/geometry/object/LineSegment.h"
+#include "inet/common/geometry/shape/Cuboid.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/visualizer/base/LinkCanvasVisualizerBase.h"
@@ -48,11 +50,27 @@ void LinkCanvasVisualizerBase::initialize(int stage)
     }
 }
 
+void LinkCanvasVisualizerBase::refreshDisplay() const
+{
+    LinkVisualizerBase::refreshDisplay();
+    auto simulation = getSimulation();
+    for (auto it : linkVisualizations) {
+        auto linkVisualization = it.second;
+        auto linkCanvasVisualization = static_cast<const LinkCanvasVisualization *>(linkVisualization);
+        auto figure = linkCanvasVisualization->figure;
+        auto sourceModule = simulation->getModule(linkVisualization->sourceModuleId);
+        auto destinationModule = simulation->getModule(linkVisualization->destinationModuleId);
+        auto sourcePosition = getContactPosition(sourceModule, getPosition(destinationModule), lineContactMode, lineContactSpacing);
+        auto destinationPosition = getContactPosition(destinationModule, getPosition(sourceModule), lineContactMode, lineContactSpacing);
+        auto shift = lineManager->getLineShift(linkVisualization->sourceModuleId, linkVisualization->destinationModuleId, sourcePosition, destinationPosition, lineShiftMode, linkVisualization->shiftOffset) * lineShift;
+        figure->setStart(canvasProjection->computeCanvasPoint(sourcePosition + shift));
+        figure->setEnd(canvasProjection->computeCanvasPoint(destinationPosition + shift));
+    }
+}
+
 const LinkVisualizerBase::LinkVisualization *LinkCanvasVisualizerBase::createLinkVisualization(cModule *source, cModule *destination) const
 {
-    auto figure = new cLineFigure();
-    figure->setStart(canvasProjection->computeCanvasPoint(getPosition(source)));
-    figure->setEnd(canvasProjection->computeCanvasPoint(getPosition(destination)));
+    auto figure = new cLineFigure("link");
     figure->setEndArrowhead(cFigure::ARROW_BARBED);
     figure->setLineWidth(lineWidth);
     figure->setLineColor(lineColor);
@@ -60,37 +78,28 @@ const LinkVisualizerBase::LinkVisualization *LinkCanvasVisualizerBase::createLin
     return new LinkCanvasVisualization(figure, source->getId(), destination->getId());
 }
 
-void LinkCanvasVisualizerBase::addLinkVisualization(std::pair<int, int> sourceAndDestination, const LinkVisualization *link)
+void LinkCanvasVisualizerBase::addLinkVisualization(std::pair<int, int> sourceAndDestination, const LinkVisualization *linkVisualization)
 {
-    LinkVisualizerBase::addLinkVisualization(sourceAndDestination, link);
-    auto canvasLink = static_cast<const LinkCanvasVisualization *>(link);
-    linkGroup->addFigure(canvasLink->figure);
+    LinkVisualizerBase::addLinkVisualization(sourceAndDestination, linkVisualization);
+    auto linkCanvasVisualization = static_cast<const LinkCanvasVisualization *>(linkVisualization);
+    auto figure = linkCanvasVisualization->figure;
+    lineManager->addModuleLine(linkVisualization);
+    linkGroup->addFigure(figure);
 }
 
-void LinkCanvasVisualizerBase::removeLinkVisualization(const LinkVisualization *link)
+void LinkCanvasVisualizerBase::removeLinkVisualization(const LinkVisualization *linkVisualization)
 {
-    LinkVisualizerBase::removeLinkVisualization(link);
-    auto canvasLink = static_cast<const LinkCanvasVisualization *>(link);
-    linkGroup->removeFigure(canvasLink->figure);
+    LinkVisualizerBase::removeLinkVisualization(linkVisualization);
+    auto linkCanvasVisualization = static_cast<const LinkCanvasVisualization *>(linkVisualization);
+    lineManager->removeModuleLine(linkVisualization);
+    linkGroup->removeFigure(linkCanvasVisualization->figure);
 }
 
-void LinkCanvasVisualizerBase::setAlpha(const LinkVisualization *link, double alpha) const
+void LinkCanvasVisualizerBase::setAlpha(const LinkVisualization *linkVisualization, double alpha) const
 {
-    auto canvasLink = static_cast<const LinkCanvasVisualization *>(link);
-    auto figure = canvasLink->figure;
+    auto linkCanvasVisualization = static_cast<const LinkCanvasVisualization *>(linkVisualization);
+    auto figure = linkCanvasVisualization->figure;
     figure->setLineOpacity(alpha);
-}
-
-void LinkCanvasVisualizerBase::setPosition(cModule *node, const Coord& position) const
-{
-    for (auto it : linkVisualizations) {
-        auto link = static_cast<const LinkCanvasVisualization *>(it.second);
-        auto figure = link->figure;
-        if (node->getId() == link->sourceModuleId)
-            figure->setStart(canvasProjection->computeCanvasPoint(position));
-        else if (node->getId() == link->destinationModuleId)
-            figure->setEnd(canvasProjection->computeCanvasPoint(position));
-    }
 }
 
 } // namespace visualizer

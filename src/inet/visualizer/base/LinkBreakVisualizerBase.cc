@@ -19,6 +19,7 @@
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/NotifierConsts.h"
 #include "inet/linklayer/contract/IMACFrame.h"
+#include "inet/linklayer/ieee80211/mac/Ieee80211Frame_m.h"
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/visualizer/base/LinkBreakVisualizerBase.h"
@@ -27,12 +28,9 @@ namespace inet {
 
 namespace visualizer {
 
-LinkBreakVisualizerBase::LinkBreakVisualization::LinkBreakVisualization(int transmitterModuleId, int receiverModuleId, simtime_t breakSimulationTime, double breakAnimationTime, double breakRealTime) :
+LinkBreakVisualizerBase::LinkBreakVisualization::LinkBreakVisualization(int transmitterModuleId, int receiverModuleId) :
     transmitterModuleId(transmitterModuleId),
-    receiverModuleId(receiverModuleId),
-    breakSimulationTime(breakSimulationTime),
-    breakAnimationTime(breakAnimationTime),
-    breakRealTime(breakRealTime)
+    receiverModuleId(receiverModuleId)
 {
 }
 
@@ -42,7 +40,6 @@ void LinkBreakVisualizerBase::initialize(int stage)
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
         subscriptionModule = *par("subscriptionModule").stringValue() == '\0' ? getSystemModule() : getModuleFromPar<cModule>(par("subscriptionModule"), this);
-        subscriptionModule->subscribe(IMobility::mobilityStateChangedSignal, this);
         subscriptionModule->subscribe(NF_LINK_BREAK, this);
         nodeMatcher.setPattern(par("nodeFilter"), true, true, true);
         icon = par("icon");
@@ -56,19 +53,17 @@ void LinkBreakVisualizerBase::initialize(int stage)
 
 void LinkBreakVisualizerBase::refreshDisplay() const
 {
-    auto currentSimulationTime = simTime();
-    double currentAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-    double currentRealTime = getRealTime();
+    AnimationPosition currentAnimationPosition;
     std::vector<const LinkBreakVisualization *> removedLinkBreakVisualizations;
     for (auto it : linkBreakVisualizations) {
         auto linkBreakVisualization = it.second;
         double delta;
         if (!strcmp(fadeOutMode, "simulationTime"))
-            delta = (currentSimulationTime - linkBreakVisualization->breakSimulationTime).dbl();
+            delta = (currentAnimationPosition.getSimulationTime() - linkBreakVisualization->linkBreakAnimationPosition.getSimulationTime()).dbl();
         else if (!strcmp(fadeOutMode, "animationTime"))
-            delta = currentAnimationTime - linkBreakVisualization->breakAnimationTime;
+            delta = currentAnimationPosition.getAnimationTime() - linkBreakVisualization->linkBreakAnimationPosition.getAnimationTime();
         else if (!strcmp(fadeOutMode, "realTime"))
-            delta = currentRealTime - linkBreakVisualization->breakRealTime;
+            delta = currentAnimationPosition.getRealTime() - linkBreakVisualization->linkBreakAnimationPosition.getRealTime();
         else
             throw cRuntimeError("Unknown fadeOutMode: %s", fadeOutMode);
         auto alpha = std::min(1.0, std::pow(2.0, -delta / fadeOutHalfLife));
@@ -83,34 +78,34 @@ void LinkBreakVisualizerBase::refreshDisplay() const
     }
 }
 
-void LinkBreakVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG)
+void LinkBreakVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
-    if (signal == IMobility::mobilityStateChangedSignal) {
-        auto mobility = dynamic_cast<IMobility *>(object);
-        auto position = mobility->getCurrentPosition();
-        auto module = check_and_cast<cModule *>(source);
-        auto node = getContainingNode(module);
-        setPosition(node, position);
-    }
-    else if (signal == NF_LINK_BREAK) {
-        auto frame = dynamic_cast<IMACFrame *>(object);
-        if (frame != nullptr) {
-            auto transmitter = findNode(frame->getTransmitterAddress());
-            auto receiver = findNode(frame->getReceiverAddress());
-            if (nodeMatcher.matches(transmitter->getFullPath().c_str()) && nodeMatcher.matches(receiver->getFullPath().c_str())) {
-                auto key = std::pair<int, int>(transmitter->getId(), receiver->getId());
-                auto it = linkBreakVisualizations.find(key);
-                if (it == linkBreakVisualizations.end())
-                    addLinkBreakVisualization(createLinkBreakVisualization(transmitter, receiver));
-                else {
-                    auto linkBreakVisualization = it->second;
-                    linkBreakVisualization->breakSimulationTime = simTime();
-                    linkBreakVisualization->breakAnimationTime = getSimulation()->getEnvir()->getAnimationTime();
-                    linkBreakVisualization->breakRealTime = getRealTime();
-                }
+    if (signal == NF_LINK_BREAK) {
+        MACAddress transmitterAddress;
+        MACAddress receiverAddress;
+        if (auto frame = dynamic_cast<IMACFrame *>(object)) {
+            transmitterAddress = frame->getTransmitterAddress();
+            receiverAddress = frame->getReceiverAddress();
+        }
+        if (auto frame = dynamic_cast<ieee80211::Ieee80211TwoAddressFrame *>(object)) {
+            transmitterAddress = frame->getTransmitterAddress();
+            receiverAddress = frame->getReceiverAddress();
+        }
+        auto transmitter = findNode(transmitterAddress);
+        auto receiver = findNode(receiverAddress);
+        if (nodeMatcher.matches(transmitter->getFullPath().c_str()) && nodeMatcher.matches(receiver->getFullPath().c_str())) {
+            auto key = std::pair<int, int>(transmitter->getId(), receiver->getId());
+            auto it = linkBreakVisualizations.find(key);
+            if (it == linkBreakVisualizations.end())
+                addLinkBreakVisualization(createLinkBreakVisualization(transmitter, receiver));
+            else {
+                auto linkBreakVisualization = it->second;
+                linkBreakVisualization->linkBreakAnimationPosition = AnimationPosition();
             }
         }
     }
+    else
+        throw cRuntimeError("Unknown signal");
 }
 
 void LinkBreakVisualizerBase::addLinkBreakVisualization(const LinkBreakVisualization *linkBreakVisualization)

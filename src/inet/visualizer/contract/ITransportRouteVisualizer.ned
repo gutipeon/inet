@@ -22,7 +22,7 @@ package inet.visualizer.contract;
 // submodules from INI files. Such a visualizer displays active transport routes
 // in a network.
 //
-// @see ~TransportRouteCanvasVisualizer, ~TransportRouteOsgVisualizer, ~TransportRouteVisualizerBase
+// @see ~TransportRouteCanvasVisualizer, ~TransportRouteOsgVisualizer
 //
 moduleinterface ITransportRouteVisualizer
 {

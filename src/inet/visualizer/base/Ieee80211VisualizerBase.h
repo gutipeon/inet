@@ -31,8 +31,8 @@ class INET_API Ieee80211VisualizerBase : public VisualizerBase, public cListener
   protected:
     class INET_API Ieee80211Visualization {
       public:
-        int networkNodeId = -1;
-        int interfaceId = -1;
+        const int networkNodeId = -1;
+        const int interfaceId = -1;
 
       public:
         Ieee80211Visualization(int networkNodeId, int interfaceId);
@@ -45,6 +45,7 @@ class INET_API Ieee80211VisualizerBase : public VisualizerBase, public cListener
     cModule *subscriptionModule = nullptr;
     PatternMatcher nodeMatcher;
     PatternMatcher interfaceMatcher;
+    const char *icon = nullptr;
     //@}
 
     std::map<std::pair<int, int>, Ieee80211Visualization *> ieee80211Visualizations;
@@ -52,13 +53,13 @@ class INET_API Ieee80211VisualizerBase : public VisualizerBase, public cListener
   protected:
     virtual void initialize(int stage) override;
 
-    virtual Ieee80211Visualization *createIeee80211Visualization(cModule *networkNode, InterfaceEntry *interfaceEntry) = 0;
+    virtual Ieee80211Visualization *createIeee80211Visualization(cModule *networkNode, InterfaceEntry *interfaceEntry, std::string ssid) = 0;
     virtual Ieee80211Visualization *getIeee80211Visualization(cModule *networkNode, InterfaceEntry *interfaceEntry);
     virtual void addIeee80211Visualization(Ieee80211Visualization *ieee80211Visualization);
     virtual void removeIeee80211Visualization(Ieee80211Visualization *ieee80211Visualization);
 
   public:
-    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object DETAILS_ARG) override;
+    virtual void receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details) override;
 };
 
 } // namespace visualizer

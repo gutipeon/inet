@@ -39,16 +39,13 @@ class INET_API RoutingTableOsgVisualizer : public RoutingTableVisualizerBase
     };
 
   protected:
-    virtual void addRouteVisualization(std::pair<int, int> nodeAndNextHop, const RouteVisualization *route) override;
-    virtual void removeRouteVisualization(const RouteVisualization *route) override;
-
-    virtual void setPosition(cModule *node, const Coord& position) const override;
-    virtual const RouteVisualization *createRouteVisualization(cModule *node, cModule *nextHop) const override;
+    virtual const RouteVisualization *createRouteVisualization(IPv4Route *route, cModule *node, cModule *nextHop) const override;
+    virtual void addRouteVisualization(const RouteVisualization *routeVisualization) override;
+    virtual void removeRouteVisualization(const RouteVisualization *routeVisualization) override;
 
 #else // ifdef WITH_OSG
 
   protected:
-    virtual void setPosition(cModule *node, const Coord& position) const override { }
     virtual const RouteVisualization *createRouteVisualization(cModule *node, cModule *nextHop) const override { return nullptr; }
 
 #endif // ifdef WITH_OSG

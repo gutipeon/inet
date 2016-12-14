@@ -32,9 +32,7 @@ package inet.visualizer.base;
 // on the visualizer receives a packetSentToUpperSignal from another MAC
 // protocol module with the same packet id, then it adds an active link between
 // the source and the destination nodes. After a certain amount of time the link
-// becomes inactive unless it is reinforced by another packet. This module also
-// subscribes for mobilityStateChangedSignal to be able to follow the movement
-// of mobile nodes.
+// becomes inactive unless it is reinforced by another packet.
 //
 // @see ~LinkCanvasVisualizer, ~LinkOsgVisualizer, ~ILinkVisualizer, and ~LinkVisualizerBase
 //
@@ -44,8 +42,12 @@ simple LinkVisualizerBase extends VisualizerBase
         string subscriptionModule = default(""); // module path where the visualizer subscribes for link layer signals, root module by default
         string packetNameFilter = default(""); // which packets are considered to determine active links, matches no packets by default
         string lineColor = default("black"); // link line color, black by default
-        double lineWidth = default(3); // link line width
         string lineStyle = default("solid"); // link line style (solid, dashed, dotted)
+        double lineWidth = default(3); // link line width
+        double lineShift = default(10); // line shift to avoid overlapping lines
+        string lineShiftMode = default("normal"); // determines how overlapping lines are shifted, possible values are: none, normal, x, y, z; optional prefix + or -
+        double lineContactSpacing = default(3);
+        string lineContactMode @enum("circular", "rectangular") = default("rectangular");
         string fadeOutMode @enum("realTime", "animationTime", "simulationTime") = default("realTime");
         double fadeOutHalfLife @unit(s) = default(1s); // how quickly inactive links fade away, opacity halves every second by default
         @class(LinkVisualizerBase);

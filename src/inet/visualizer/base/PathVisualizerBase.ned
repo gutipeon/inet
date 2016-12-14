@@ -18,7 +18,7 @@
 package inet.visualizer.base;
 
 //
-// This is a base module for route visualizer simple modules. It keeps track of
+// This is a base module for path visualizer simple modules. It keeps track of
 // active routes in a network. A route between two network node is considered
 // active if a packet is sent recently between their network layers. Active
 // routes are not displayed by default, see the module parameters for how to
@@ -37,19 +37,23 @@ package inet.visualizer.base;
 // packetReceivedFromLowerSignal from a network protocol module, then it adds
 // the node to the intermediate nodes of the route. After a certain amount of
 // time the route becomes inactive unless it is reinforced by another packet. 
-// This module also subscribes for mobilityStateChangedSignal to be able to
-// follow the movement of mobile nodes.
 //
-// @see ~RouteCanvasVisualizer, ~RouteOsgVisualizer, ~IRouteVisualizer, ~RouteVisualizerBase
+// @see ~NetworkRouteCanvasVisualizer, ~NetworkRouteOsgVisualizer, ~INetworkRouteVisualizer
+// @see ~TransportRouteCanvasVisualizer, ~TransportRouteOsgVisualizer, ~ITransportRouteVisualizer
 //
-simple RouteVisualizerBase extends VisualizerBase
+simple PathVisualizerBase extends VisualizerBase
 {
     parameters:
         string subscriptionModule = default(""); // module path where the visualizer subscribes for network layer signals, root module by default
         string packetNameFilter = default(""); // which packets are considered to determine active routes, matches no packets by default
-        string lineColor = default(""); // route line color, automatic by default
+        string lineColor = default("auto"); // route line color, automatic by default
+        string lineStyle = default("solid"); // link line style (solid, dashed, dotted)
         double lineWidth = default(3); // route line width
+        double lineShift = default(10); // route line shift to avoid overlapping routes
+        string lineShiftMode = default("normal"); // determines how overlapping lines are shifted, possible values are: normal, x, y, z; optional prefix + or -
+        double lineContactSpacing = default(3);
+        string lineContactMode @enum("circular", "rectangular") = default("rectangular");
         string fadeOutMode @enum("realTime", "animationTime", "simulationTime") = default("realTime");
         double fadeOutHalfLife @unit(s) = default(1s); // how quickly inactive routes fade away, opacity halves every second by default
-        @class(RouteVisualizerBase);
+        @class(PathVisualizerBase);
 }

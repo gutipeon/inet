@@ -42,9 +42,7 @@ class INET_API LinkOsgVisualizerBase : public LinkVisualizerBase
     virtual const LinkVisualization *createLinkVisualization(cModule *source, cModule *destination) const override;
     virtual void addLinkVisualization(std::pair<int, int> sourceAndDestination, const LinkVisualization *linkVisualization) override;
     virtual void removeLinkVisualization(const LinkVisualization *linkVisualization) override;
-
     virtual void setAlpha(const LinkVisualization *linkVisualization, double alpha) const override;
-    virtual void setPosition(cModule *node, const Coord& position) const override;
 
 #else // ifdef WITH_OSG
 
@@ -53,7 +51,6 @@ class INET_API LinkOsgVisualizerBase : public LinkVisualizerBase
 
     virtual const LinkVisualization *createLinkVisualization(cModule *source, cModule *destination) const override { return nullptr; }
     virtual void setAlpha(const LinkVisualization *linkVisualization, double alpha) const override {}
-    virtual void setPosition(cModule *node, const Coord& position) const override {}
 
 #endif // ifdef WITH_OSG
 };
