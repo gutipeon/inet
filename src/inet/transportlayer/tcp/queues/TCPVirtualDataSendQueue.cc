@@ -76,7 +76,7 @@ Packet *TCPVirtualDataSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong nu
     Packet *packet = new Packet(msgname);
     const auto& tcpseg = std::make_shared<TcpHeader>();
     tcpseg->setSequenceNo(fromSeq);
-    const auto& payload = std::make_shared<ByteCountChunk>(numBytes);
+    const auto& payload = std::make_shared<ByteCountChunk>(numBytes);   //FIXME get data from buffer
     packet->pushHeader(tcpseg);
     packet->pushTrailer(payload);
     return packet;

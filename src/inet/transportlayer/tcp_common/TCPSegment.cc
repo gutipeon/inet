@@ -54,13 +54,9 @@ std::string Sack::str() const
 
 Register_Class(TcpHeader);
 
-uint32_t TcpHeader::getSegLen()
-{
-    return payloadLength + (finBit ? 1 : 0) + (synBit ? 1 : 0);
-}
-
 void TcpHeader::truncateSegment(uint32 firstSeqNo, uint32 endSeqNo)
 {
+#if 0   //FIXME KLUDGE
     ASSERT(payloadLength > 0);
 
     // must have common part:
@@ -83,6 +79,7 @@ void TcpHeader::truncateSegment(uint32 firstSeqNo, uint32 endSeqNo)
     }
 
     truncateData(truncleft, truncright);
+#endif
 }
 
 unsigned short TcpHeader::getHeaderOptionArrayLength()
@@ -107,8 +104,6 @@ TcpHeader& TcpHeader::operator=(const TcpHeader& other)
 
 void TcpHeader::copy(const TcpHeader& other)
 {
-    for (const auto & elem : other.payloadList)
-        addPayloadMessage(elem.msg->dup(), elem.endSequenceNo);
     for (const auto opt: other.headerOptionList)
         headerOptionList.push_back(opt->dup());
 }
@@ -122,14 +117,6 @@ void TcpHeader::clean()
 {
     dropHeaderOptions();
     setHeaderLength(TCP_HEADER_OCTETS);
-
-    while (!payloadList.empty()) {
-        cPacket *msg = payloadList.front().msg;
-        payloadList.pop_front();
-        dropAndDelete(msg);
-    }
-    payloadLength = 0;
-
     setChunkLength(TCP_HEADER_OCTETS);
 }
 
@@ -167,11 +154,6 @@ void TcpHeader::parsimPack(cCommBuffer *b) PARSIMPACK_CONST
     for (const auto opt: headerOptionList) {
         b->packObject(opt);
     }
-    b->pack((int)payloadList.size());
-    for (PayloadList::const_iterator it = payloadList.begin(); it != payloadList.end(); it++) {
-        b->pack(it->endSequenceNo);
-        b->packObject(it->msg);
-    }
 }
 
 void TcpHeader::parsimUnpack(cCommBuffer *b)
@@ -183,67 +165,14 @@ void TcpHeader::parsimUnpack(cCommBuffer *b)
         TCPOption *opt = check_and_cast<TCPOption*>(b->unpackObject());
         headerOptionList.push_back(opt);
     }
-    b->unpack(n);
-    for (i = 0; i < n; i++) {
-        TCPPayloadMessage payload;
-        b->unpack(payload.endSequenceNo);
-        payload.msg = check_and_cast<cPacket*>(b->unpackObject());
-        payloadList.push_back(payload);
-    }
-}
-
-void TcpHeader::setPayloadArraySize(unsigned int size)
-{
-    throw cRuntimeError(this, "setPayloadArraySize() not supported, use addPayloadMessage()");
-}
-
-unsigned int TcpHeader::getPayloadArraySize() const
-{
-    return payloadList.size();
-}
-
-TCPPayloadMessage& TcpHeader::getPayload(unsigned int k)
-{
-    auto i = payloadList.begin();
-    while (k > 0 && i != payloadList.end())
-        (++i, --k);
-    if (i == payloadList.end())
-        throw cRuntimeError("Model error at getPayload(): index out of range");
-    return *i;
-}
-
-void TcpHeader::setPayload(unsigned int k, const TCPPayloadMessage& payload_var)
-{
-    throw cRuntimeError(this, "setPayload() not supported, use addPayloadMessage()");
-}
-
-void TcpHeader::addPayloadMessage(cPacket *msg, uint32 endSequenceNo)
-{
-    take(msg);
-
-    TCPPayloadMessage payload;
-    payload.endSequenceNo = endSequenceNo;
-    payload.msg = msg;
-    payloadList.push_back(payload);
-}
-
-cPacket *TcpHeader::removeFirstPayloadMessage(uint32& endSequenceNo)
-{
-    if (payloadList.empty())
-        return nullptr;
-
-    cPacket *msg = payloadList.front().msg;
-    endSequenceNo = payloadList.front().endSequenceNo;
-    payloadList.pop_front();
-    drop(msg);
-    return msg;
 }
 
 void TcpHeader::addHeaderOption(TCPOption *option)
 {
+    handleChange();
     headerOptionList.push_back(option);
     headerLength += option->getLength();
-    addChunkByteLength(option->getLength());
+    setChunkLength(headerLength);
 }
 
 void TcpHeader::setHeaderOptionArraySize(unsigned int size)
@@ -272,7 +201,7 @@ void TcpHeader::dropHeaderOptions()
         delete opt;
     headerOptionList.clear();
     setHeaderLength(TCP_HEADER_OCTETS);
-    setChunkLength(TCP_HEADER_OCTETS + payloadLength);
+    setChunkLength(TCP_HEADER_OCTETS);
 }
 
 

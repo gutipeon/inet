@@ -60,8 +60,6 @@ class INET_API Sack : public Sack_Base
 class INET_API TcpHeader : public TcpHeader_Base, public ITransportPacket
 {
   protected:
-    typedef std::list<TCPPayloadMessage> PayloadList;
-    PayloadList payloadList;
     typedef std::vector<TCPOption *> OptionList;
     OptionList headerOptionList;
 
@@ -84,7 +82,7 @@ class INET_API TcpHeader : public TcpHeader_Base, public ITransportPacket
      *               (counting SYN and FIN)
      *
      */
-    virtual uint32_t getSegLen();
+    uint32_t getSynFinLen() const { return (finBit ? 1 : 0) + (synBit ? 1 : 0); }
 
     // manage header options:
 

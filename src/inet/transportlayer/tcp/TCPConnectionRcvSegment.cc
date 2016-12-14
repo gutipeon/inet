@@ -36,7 +36,7 @@ bool TCPConnection::tryFastRoute(TcpHeader *tcpseg)
     return false;
 }
 
-void TCPConnection::segmentArrivalWhileClosed(TcpHeader *tcpseg, L3Address srcAddr, L3Address destAddr)
+void TCPConnection::segmentArrivalWhileClosed(Packet *packet, TcpHeader *tcpseg, L3Address srcAddr, L3Address destAddr)
 {
     EV_INFO << "Seg arrived: ";
     printSegmentBrief(tcpseg);
@@ -77,7 +77,7 @@ void TCPConnection::segmentArrivalWhileClosed(TcpHeader *tcpseg, L3Address srcAd
 
     if (!tcpseg->getAckBit()) {
         EV_DETAIL << "ACK bit not set: sending RST+ACK\n";
-        uint32 ackNo = tcpseg->getSequenceNo() + tcpseg->getSegLen();
+        uint32 ackNo = tcpseg->getSequenceNo() + packet->getByteLength() - tcpseg->getHeaderLength() + tcpseg->getSynFinLen();
         sendRstAck(0, ackNo, destAddr, srcAddr, tcpseg->getDestPort(), tcpseg->getSrcPort());
     }
     else {

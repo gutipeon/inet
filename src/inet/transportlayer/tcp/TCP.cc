@@ -38,10 +38,6 @@
 #include "inet/networklayer/icmpv6/ICMPv6Message_m.h"
 #endif // ifdef WITH_IPv6
 
-#include "inet/transportlayer/tcp/queues/TCPByteStreamRcvQueue.h"
-#include "inet/transportlayer/tcp/queues/TCPByteStreamSendQueue.h"
-#include "inet/transportlayer/tcp/queues/TCPMsgBasedRcvQueue.h"
-#include "inet/transportlayer/tcp/queues/TCPMsgBasedSendQueue.h"
 #include "inet/transportlayer/tcp/queues/TCPVirtualDataRcvQueue.h"
 #include "inet/transportlayer/tcp/queues/TCPVirtualDataSendQueue.h"
 
@@ -189,7 +185,7 @@ TCPConnection *TCP::createConnection(int socketId)
 void TCP::segmentArrivalWhileClosed(Packet *packet, TcpHeader *tcpseg, L3Address srcAddr, L3Address destAddr)
 {
     TCPConnection *tmp = new TCPConnection();
-    tmp->segmentArrivalWhileClosed(tcpseg, srcAddr, destAddr);
+    tmp->segmentArrivalWhileClosed(packet, tcpseg, srcAddr, destAddr);
     delete tmp;
     delete packet;
 }
@@ -478,13 +474,11 @@ TCPSendQueue *TCP::createSendQueue(TCPDataTransferMode transferModeP)
 {
     switch (transferModeP) {
         case TCP_TRANSFER_BYTECOUNT:
-            return new TCPVirtualDataSendQueue();
-
         case TCP_TRANSFER_OBJECT:
-            return new TCPMsgBasedSendQueue();
-
         case TCP_TRANSFER_BYTESTREAM:
-            return new TCPByteStreamSendQueue();
+            return new TCPVirtualDataSendQueue();
+//            return new TCPMsgBasedSendQueue();
+//            return new TCPByteStreamSendQueue();
 
         default:
             throw cRuntimeError("Invalid TCP data transfer mode: %d", transferModeP);
@@ -495,13 +489,11 @@ TCPReceiveQueue *TCP::createReceiveQueue(TCPDataTransferMode transferModeP)
 {
     switch (transferModeP) {
         case TCP_TRANSFER_BYTECOUNT:
-            return new TCPVirtualDataRcvQueue();
-
         case TCP_TRANSFER_OBJECT:
-            return new TCPMsgBasedRcvQueue();
-
         case TCP_TRANSFER_BYTESTREAM:
-            return new TCPByteStreamRcvQueue();
+            return new TCPVirtualDataRcvQueue();
+//            return new TCPMsgBasedRcvQueue();
+//            return new TCPByteStreamRcvQueue();
 
         default:
             throw cRuntimeError("Invalid TCP data transfer mode: %d", transferModeP);

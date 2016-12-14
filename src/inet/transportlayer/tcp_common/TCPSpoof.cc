@@ -43,8 +43,8 @@ void TCPSpoof::handleMessage(cMessage *msg)
 
 void TCPSpoof::sendSpoofPacket()
 {
-    FlatPacket *packet = new FlatPacket("spoof");
-    TcpHeader *tcpseg = new TcpHeader("spoof");
+    Packet *packet = new Packet("spoof");
+    const auto& tcpseg = std::make_shared<TcpHeader>();
 
     L3Address srcAddr = L3AddressResolver().resolve(par("srcAddress"));
     L3Address destAddr = L3AddressResolver().resolve(par("destAddress"));
@@ -56,7 +56,7 @@ void TCPSpoof::sendSpoofPacket()
     // one can customize the following according to concrete needs
     tcpseg->setSrcPort(srcPort);
     tcpseg->setDestPort(destPort);
-    tcpseg->setChunkByteLength(TCP_HEADER_OCTETS);
+    tcpseg->setChunkLength(TCP_HEADER_OCTETS);
     tcpseg->setSequenceNo(seq);
     //tcpseg->setAckNo(...);
     tcpseg->setSynBit(isSYN);

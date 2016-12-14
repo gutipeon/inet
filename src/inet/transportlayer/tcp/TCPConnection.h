@@ -595,7 +595,7 @@ class INET_API TCPConnection
      * connection object so that it can call this method, then immediately
      * deletes it.
      */
-    virtual void segmentArrivalWhileClosed(TcpHeader *tcpseg, L3Address src, L3Address dest);
+    virtual void segmentArrivalWhileClosed(Packet *packet, TcpHeader *tcpseg, L3Address src, L3Address dest);
 
     /** @name Various getters **/
     //@{

@@ -23,6 +23,7 @@
 #include <list>
 #include <string>
 
+#include "inet/common/packet/ReorderBuffer.h"
 #include "inet/transportlayer/tcp_common/TCPSegment.h"
 #include "inet/transportlayer/tcp/TCPReceiveQueue.h"
 
@@ -40,7 +41,7 @@ class INET_API TCPVirtualDataRcvQueue : public TCPReceiveQueue
   protected:
     uint32 rcv_nxt = 0;
 
-    class Region
+    class Region        //FIXME remove it
     {
       protected:
         uint32 begin;
@@ -56,37 +57,41 @@ class INET_API TCPVirtualDataRcvQueue : public TCPReceiveQueue
         unsigned long getLengthTo(uint32 seq) const;
 
         /** Compare self and other */
-        CompareStatus compare(const TCPVirtualDataRcvQueue::Region& other) const;
+        _OPPDEPRECATED CompareStatus compare(const TCPVirtualDataRcvQueue::Region& other) const;
 
         // Virtual functions:
 
         /** Merge other region to self */
-        virtual bool merge(const TCPVirtualDataRcvQueue::Region *other);
+        _OPPDEPRECATED virtual bool merge(const TCPVirtualDataRcvQueue::Region *other);
 
         /** Copy self to msg */
-        virtual void copyTo(cPacket *msg) const;
+        _OPPDEPRECATED virtual void copyTo(cPacket *msg) const;
 
         /**
          * Returns an allocated new Region object with filled with [begin..seq) and set self to [seq..end)
          */
-        virtual TCPVirtualDataRcvQueue::Region *split(uint32 seq);
+        _OPPDEPRECATED virtual TCPVirtualDataRcvQueue::Region *split(uint32 seq);
     };
 
-    typedef std::list<Region *> RegionList;
+    typedef std::list<Region *> RegionList;        //FIXME remove it
+    RegionList regionList;        //FIXME remove it
 
-    RegionList regionList;
+    ReorderBuffer reorderBuffer;
 
     /** Merge segment byte range into regionList, the parameter region must created by 'new' operator. */
-    void merge(TCPVirtualDataRcvQueue::Region *region);
+    _OPPDEPRECATED void merge(TCPVirtualDataRcvQueue::Region *region);        //FIXME remove it
 
     // Returns number of bytes extracted
-    TCPVirtualDataRcvQueue::Region *extractTo(uint32 toSeq);
+    _OPPDEPRECATED TCPVirtualDataRcvQueue::Region *extractTo(uint32 toSeq);        //FIXME remove it
 
     /**
      * Create a new Region from tcpseg.
      * Called from insertBytesFromSegment()
      */
-    virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(Packet *packet, TcpHeader *tcpseg);
+    _OPPDEPRECATED virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(Packet *packet, TcpHeader *tcpseg);        //FIXME remove it
+
+    uint32_t offsetToSeq(int64_t offs) const;
+    int64_t seqToOffset(uint32_t seq) const;
 
   public:
     /**
