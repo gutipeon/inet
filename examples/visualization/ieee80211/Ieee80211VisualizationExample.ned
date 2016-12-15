@@ -6,7 +6,6 @@ import inet.node.wireless.AccessPoint;
 import inet.physicallayer.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
 import inet.visualizer.integrated.IntegratedVisualizer;
 
-
 network Ieee80211VisualizationExample
 {
     parameters:

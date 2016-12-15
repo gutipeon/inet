@@ -18,6 +18,7 @@
 #ifndef __INET_IEEE80211CANVASVISUALIZER_H
 #define __INET_IEEE80211CANVASVISUALIZER_H
 
+#include "inet/common/figures/LabeledIcon.h"
 #include "inet/visualizer/base/Ieee80211VisualizerBase.h"
 #include "inet/visualizer/networknode/NetworkNodeCanvasVisualizer.h"
 
@@ -31,10 +32,10 @@ class INET_API Ieee80211CanvasVisualizer : public Ieee80211VisualizerBase
     class INET_API Ieee80211CanvasVisualization : public Ieee80211Visualization {
       public:
         NetworkNodeCanvasVisualization *networkNodeVisualization = nullptr;
-        cIconFigure *figure = nullptr;
+        LabeledIcon *figure = nullptr;
 
       public:
-        Ieee80211CanvasVisualization(NetworkNodeCanvasVisualization *networkNodeVisualization, cIconFigure *figure, int networkNodeId, int interfaceId);
+        Ieee80211CanvasVisualization(NetworkNodeCanvasVisualization *networkNodeVisualization, LabeledIcon *figure, int networkNodeId, int interfaceId);
     };
 
   protected:

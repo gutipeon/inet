@@ -24,7 +24,7 @@ namespace visualizer {
 
 Define_Module(Ieee80211CanvasVisualizer);
 
-Ieee80211CanvasVisualizer::Ieee80211CanvasVisualization::Ieee80211CanvasVisualization(NetworkNodeCanvasVisualization *networkNodeVisualization, cIconFigure *figure, int networkNodeId, int interfaceId) :
+Ieee80211CanvasVisualizer::Ieee80211CanvasVisualization::Ieee80211CanvasVisualization(NetworkNodeCanvasVisualization *networkNodeVisualization, LabeledIcon *figure, int networkNodeId, int interfaceId) :
     Ieee80211Visualization(networkNodeId, interfaceId),
     networkNodeVisualization(networkNodeVisualization),
     figure(figure)
@@ -44,15 +44,22 @@ void Ieee80211CanvasVisualizer::initialize(int stage)
 Ieee80211VisualizerBase::Ieee80211Visualization *Ieee80211CanvasVisualizer::createIeee80211Visualization(cModule *networkNode, InterfaceEntry *interfaceEntry, std::string ssid)
 {
     std::hash<std::string> hasher;
-    auto iconFigure = new cIconFigure();
+    auto labeledIconFigure = new LabeledIcon();
+    auto iconFigure = labeledIconFigure->getIconFigure();
     iconFigure->setTags("ieee80211_association");
     iconFigure->setTooltip("This icon represents an IEEE 802.11 association");
     iconFigure->setAnchor(cFigure::ANCHOR_NW);
     iconFigure->setImageName(icon);
     iconFigure->setTintColor(cFigure::GOOD_DARK_COLORS[hasher(ssid) % (sizeof(cFigure::GOOD_DARK_COLORS) / sizeof(cFigure::Color))]);
     iconFigure->setTintAmount(1);
+    auto labelFigure = labeledIconFigure->getLabelFigure();
+    labelFigure->setTags("ieee80211_association SSID");
+    labelFigure->setTooltip("This label represents the SSID of an IEEE 802.11 network");
+    labelFigure->setText(ssid.c_str());
+    labelFigure->setColor(cFigure::BLACK);
+    labelFigure->setPosition(iconFigure->getBounds().getSize() / 2);
     auto networkNodeVisualization = networkNodeVisualizer->getNeworkNodeVisualization(networkNode);
-    return new Ieee80211CanvasVisualization(networkNodeVisualization, iconFigure, networkNode->getId(), interfaceEntry->getInterfaceId());
+    return new Ieee80211CanvasVisualization(networkNodeVisualization, labeledIconFigure, networkNode->getId(), interfaceEntry->getInterfaceId());
 }
 
 void Ieee80211CanvasVisualizer::addIeee80211Visualization(Ieee80211Visualization *ieee80211Visualization)
