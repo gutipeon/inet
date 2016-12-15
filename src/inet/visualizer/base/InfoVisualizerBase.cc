@@ -33,14 +33,14 @@ void InfoVisualizerBase::initialize(int stage)
     if (stage == INITSTAGE_LOCAL) {
         fontColor = cFigure::Color(par("fontColor"));
         backgroundColor = cFigure::Color(par("backgroundColor"));
-        moduleMatcher.setPattern(par("modules"), true, true, true);
+        moduleFilter.setPattern(par("modules"));
         opacity = par("opacity");
     }
     else if (stage == INITSTAGE_LAST) {
         auto simulation = getSimulation();
         for (int id = 0; id < simulation->getLastComponentId(); id++) {
             auto component = simulation->getComponent(id);
-            if (component != nullptr && component->isModule() && moduleMatcher.matches(component->getFullPath().c_str()))
+            if (component != nullptr && component->isModule() && moduleFilter.matches(component->getFullPath().c_str()))
                 infoVisualizations.push_back(createInfoVisualization(static_cast<cModule *>(component)));
         }
     }

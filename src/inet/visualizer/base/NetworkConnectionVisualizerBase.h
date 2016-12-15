@@ -18,8 +18,8 @@
 #ifndef __INET_NETWORKCONNECTIONVISUALIZERBASE_H
 #define __INET_NETWORKCONNECTIONVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -28,7 +28,7 @@ namespace visualizer {
 class INET_API NetworkConnectionVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
-    PatternMatcher networkNodePathMatcher;
+    NodeFilter nodeFilter;
     cFigure::Color lineColor;
     double lineWidth = NaN;
 

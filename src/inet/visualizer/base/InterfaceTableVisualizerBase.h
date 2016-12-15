@@ -18,10 +18,11 @@
 #ifndef __INET_INTERFACETABLEVISUALIZERBASE_H
 #define __INET_INTERFACETABLEVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/linklayer/common/MACAddress.h"
 #include "inet/networklayer/common/InterfaceEntry.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/InterfaceFilter.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -44,8 +45,8 @@ class INET_API InterfaceTableVisualizerBase : public VisualizerBase, public cLis
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    PatternMatcher nodeMatcher;
-    PatternMatcher interfaceMatcher;
+    NodeFilter nodeFilter;
+    InterfaceFilter interfaceFilter;
     const char *content = nullptr;
     cFigure::Color fontColor;
     cFigure::Color backgroundColor;

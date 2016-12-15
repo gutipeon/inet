@@ -48,7 +48,7 @@ void TransportConnectionVisualizerBase::initialize(int stage)
     if (stage == INITSTAGE_LOCAL) {
         subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(inet::tcp::TCP::tcpConnectionAddedSignal, this);
-        nodeMatcher.setPattern(par("nodeFilter"), false, true, true);
+        nodeFilter.setPattern(par("nodeFilter"));
         icon = par("icon");
     }
 }
@@ -70,8 +70,8 @@ void TransportConnectionVisualizerBase::receiveSignal(cComponent *source, simsig
         L3AddressResolver resolver;
         auto source = resolver.findHostWithAddress(tcpConnection->localAddr);
         auto destination = resolver.findHostWithAddress(tcpConnection->remoteAddr);
-        if (source != nullptr && nodeMatcher.matches(source->getFullPath().c_str()) &&
-            destination != nullptr && nodeMatcher.matches(destination->getFullPath().c_str()))
+        if (source != nullptr && nodeFilter.matches(source->getFullPath().c_str()) &&
+            destination != nullptr && nodeFilter.matches(destination->getFullPath().c_str()))
         {
             addConnectionVisualization(createConnectionVisualization(source, destination, tcpConnection));
         }

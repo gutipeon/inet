@@ -26,7 +26,7 @@ package inet.visualizer.base;
 simple NetworkConnectionVisualizerBase extends VisualizerBase
 {
     parameters:
-        string networkNodePathFilter = default("**"); // determines which network connections are displayed, all connections by default
+        string nodeFilter = default("**"); // determines which network connections are displayed, all connections by default
         string lineColor = default("black"); // connection line color
         double lineWidth = default(1); // connection line width
         @class(NetworkConnectionVisualizerBase);

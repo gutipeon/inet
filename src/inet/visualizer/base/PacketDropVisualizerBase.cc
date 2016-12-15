@@ -57,7 +57,7 @@ void PacketDropVisualizerBase::initialize(int stage)
         subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetFromLowerDroppedSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetFromUpperDroppedSignal, this);
-        packetNameMatcher.setPattern(par("packetNameFilter"), false, true, true);
+        packetFilter.setPattern(par("packetFilter"));
         icon = par("icon");
         iconTintAmount = par("iconTintAmount");
         if (iconTintAmount != 0)
@@ -96,7 +96,7 @@ void PacketDropVisualizerBase::refreshDisplay() const
 void PacketDropVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
     if (signal == LayeredProtocolBase::packetFromLowerDroppedSignal || signal == LayeredProtocolBase::packetFromUpperDroppedSignal) {
-        if (packetNameMatcher.matches(object->getFullName()))
+        if (packetFilter.matches(object->getFullName()))
             addPacketDropVisualization(createPacketDropVisualization(check_and_cast<cModule*>(source), check_and_cast<cPacket*>(object)->dup()));
     }
     else

@@ -18,8 +18,8 @@
 #ifndef __INET_INFOVISUALIZERBASE_H
 #define __INET_INFOVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/ModuleFilter.h"
 
 namespace inet {
 
@@ -43,7 +43,7 @@ class INET_API InfoVisualizerBase : public VisualizerBase
     //@{
     cFigure::Color fontColor;
     cFigure::Color backgroundColor;
-    inet::PatternMatcher moduleMatcher;
+    ModuleFilter moduleFilter;
     double opacity = NaN;
     //@}
 

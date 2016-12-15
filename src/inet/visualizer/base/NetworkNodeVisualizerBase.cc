@@ -27,7 +27,7 @@ void NetworkNodeVisualizerBase::initialize(int stage)
     VisualizerBase::initialize(stage);
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
-        networkNodePathMatcher.setPattern(par("networkNodePathFilter"), true, true, true);
+        nodeFilter.setPattern(par("nodeFilter"));
     }
 }
 

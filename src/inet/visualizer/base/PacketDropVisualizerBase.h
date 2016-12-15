@@ -18,9 +18,9 @@
 #ifndef __INET_PACKETDROPVISUALIZERBASE_H
 #define __INET_PACKETDROPVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
 #include "inet/visualizer/common/AnimationPosition.h"
+#include "inet/visualizer/common/PacketFilter.h"
 
 namespace inet {
 
@@ -45,7 +45,7 @@ class INET_API PacketDropVisualizerBase : public VisualizerBase, public cListene
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    PatternMatcher packetNameMatcher;
+    PacketFilter packetFilter;
     const char *icon = nullptr;
     cFigure::Color iconTintColor;
     double iconTintAmount = NaN;

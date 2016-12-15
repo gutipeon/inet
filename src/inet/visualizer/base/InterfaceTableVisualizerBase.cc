@@ -53,8 +53,8 @@ void InterfaceTableVisualizerBase::initialize(int stage)
         subscriptionModule->subscribe(NF_INTERFACE_DELETED, this);
         subscriptionModule->subscribe(NF_INTERFACE_CONFIG_CHANGED, this);
         subscriptionModule->subscribe(NF_INTERFACE_IPv4CONFIG_CHANGED, this);
-        nodeMatcher.setPattern(par("nodeFilter"), true, true, true);
-        interfaceMatcher.setPattern(par("interfaceFilter"), false, true, true);
+        nodeFilter.setPattern(par("nodeFilter"));
+        interfaceFilter.setPattern(par("interfaceFilter"));
         content = par("content");
         fontColor = cFigure::parseColor(par("fontColor"));
         backgroundColor = cFigure::parseColor(par("backgroundColor"));
@@ -97,9 +97,9 @@ void InterfaceTableVisualizerBase::receiveSignal(cComponent *source, simsignal_t
 {
     if (signal == NF_INTERFACE_CREATED) {
         auto networkNode = getContainingNode(static_cast<cModule *>(source));
-        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (nodeFilter.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntry = static_cast<InterfaceEntry *>(object);
-            if (interfaceMatcher.matches(interfaceEntry->getFullName())) {
+            if (interfaceFilter.matches(interfaceEntry->getFullName())) {
                 auto interfaceVisualization = createInterfaceVisualization(networkNode, interfaceEntry);
                 addInterfaceVisualization(interfaceVisualization);
             }
@@ -107,9 +107,9 @@ void InterfaceTableVisualizerBase::receiveSignal(cComponent *source, simsignal_t
     }
     else if (signal == NF_INTERFACE_DELETED) {
         auto networkNode = getContainingNode(static_cast<cModule *>(source));
-        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (nodeFilter.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntry = static_cast<InterfaceEntry *>(object);
-            if (interfaceMatcher.matches(interfaceEntry->getFullName())) {
+            if (interfaceFilter.matches(interfaceEntry->getFullName())) {
                 auto interfaceVisualization = getInterfaceVisualization(networkNode, interfaceEntry);
                 removeInterfaceVisualization(interfaceVisualization);
             }
@@ -117,12 +117,12 @@ void InterfaceTableVisualizerBase::receiveSignal(cComponent *source, simsignal_t
     }
     else if (signal == NF_INTERFACE_CONFIG_CHANGED || signal == NF_INTERFACE_IPv4CONFIG_CHANGED) {
         auto networkNode = getContainingNode(static_cast<cModule *>(source));
-        if (object != nullptr && nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (object != nullptr && nodeFilter.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntryDetails = static_cast<InterfaceEntryChangeDetails *>(object);
             auto interfaceEntry = interfaceEntryDetails->getInterfaceEntry();
             auto fieldId = interfaceEntryDetails->getFieldId();
             if (fieldId == InterfaceEntry::F_IPV4_DATA || fieldId == IPv4InterfaceData::F_IP_ADDRESS) {
-                if (interfaceMatcher.matches(interfaceEntry->getFullName())) {
+                if (interfaceFilter.matches(interfaceEntry->getFullName())) {
                     auto interfaceVisualization = getInterfaceVisualization(networkNode, interfaceEntry);
                     refreshInterfaceVisualization(interfaceVisualization, interfaceEntry);
                 }

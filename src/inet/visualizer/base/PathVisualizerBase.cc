@@ -49,7 +49,7 @@ void PathVisualizerBase::initialize(int stage)
         subscriptionModule->subscribe(LayeredProtocolBase::packetSentToUpperSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetReceivedFromUpperSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetReceivedFromLowerSignal, this);
-        packetNameMatcher.setPattern(par("packetNameFilter"), false, true, true);
+        packetFilter.setPattern(par("packetFilter"));
         if (strcmp(par("lineColor"), "auto"))
             lineColor = cFigure::Color(par("lineColor"));
         lineStyle = cFigure::parseLineStyle(par("lineStyle"));
@@ -159,7 +159,7 @@ void PathVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
     if (signal == LayeredProtocolBase::packetReceivedFromUpperSignal) {
         if (isPathEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
-            if (packetNameMatcher.matches(packet->getFullName())) {
+            if (packetFilter.matches(packet->getFullName())) {
                 auto treeId = packet->getTreeId();
                 auto module = check_and_cast<cModule *>(source);
                 addToIncompletePath(treeId, getContainingNode(module));
@@ -169,7 +169,7 @@ void PathVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
     else if (signal == LayeredProtocolBase::packetReceivedFromLowerSignal) {
         if (isPathEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
-            if (packetNameMatcher.matches(packet->getFullName())) {
+            if (packetFilter.matches(packet->getFullName())) {
                 auto treeId = packet->getEncapsulatedPacket()->getTreeId();
                 auto module = check_and_cast<cModule *>(source);
                 addToIncompletePath(treeId, getContainingNode(module));
@@ -177,7 +177,7 @@ void PathVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
         }
         else if (isPathElement(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
-            if (packetNameMatcher.matches(packet->getFullName())) {
+            if (packetFilter.matches(packet->getFullName())) {
                 auto encapsulatedPacket = packet->getEncapsulatedPacket()->getEncapsulatedPacket();
                 if (encapsulatedPacket != nullptr) {
                     auto treeId = encapsulatedPacket->getTreeId();
@@ -190,7 +190,7 @@ void PathVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
     else if (signal == LayeredProtocolBase::packetSentToUpperSignal) {
         if (isPathEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
-            if (packetNameMatcher.matches(packet->getFullName())) {
+            if (packetFilter.matches(packet->getFullName())) {
                 auto treeId = packet->getTreeId();
                 auto path = getIncompletePath(treeId);
                 updatePath(*path);

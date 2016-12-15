@@ -54,8 +54,8 @@ void Ieee80211VisualizerBase::initialize(int stage)
         subscriptionModule->subscribe(NF_L2_DISASSOCIATED, this);
         subscriptionModule->subscribe(NF_L2_AP_ASSOCIATED, this);
         subscriptionModule->subscribe(NF_L2_AP_DISASSOCIATED, this);
-        nodeMatcher.setPattern(par("nodeFilter"), true, true, true);
-        interfaceMatcher.setPattern(par("interfaceFilter"), false, true, true);
+        nodeFilter.setPattern(par("nodeFilter"));
+        interfaceFilter.setPattern(par("interfaceFilter"));
         icon = par("icon");
     }
 }
@@ -83,7 +83,7 @@ void Ieee80211VisualizerBase::receiveSignal(cComponent *source, simsignal_t sign
 {
     if (signal == NF_L2_ASSOCIATED) {
         auto networkNode = getContainingNode(check_and_cast<cModule *>(source));
-        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (nodeFilter.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntry = check_and_cast<InterfaceEntry *>(object);
             auto apInfo = check_and_cast<inet::ieee80211::Ieee80211MgmtSTA::APInfo *>(details);
             auto ieee80211Visualization = createIeee80211Visualization(networkNode, interfaceEntry, apInfo->ssid);
@@ -92,7 +92,7 @@ void Ieee80211VisualizerBase::receiveSignal(cComponent *source, simsignal_t sign
     }
     else if (signal == NF_L2_DISASSOCIATED) {
         auto networkNode = getContainingNode(check_and_cast<cModule *>(source));
-        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (nodeFilter.matches(networkNode->getFullPath().c_str())) {
             auto interfaceEntry = check_and_cast<InterfaceEntry *>(object);
             auto ieee80211Visualization = getIeee80211Visualization(networkNode, interfaceEntry);
             removeIeee80211Visualization(ieee80211Visualization);
@@ -100,7 +100,7 @@ void Ieee80211VisualizerBase::receiveSignal(cComponent *source, simsignal_t sign
     }
     else if (signal == NF_L2_AP_ASSOCIATED) {
         auto networkNode = getContainingNode(check_and_cast<cModule *>(source));
-        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (nodeFilter.matches(networkNode->getFullPath().c_str())) {
             // TODO: KLUDGE: this is the wrong way to lookup the interface and the ssid
             L3AddressResolver addressResolver;
             auto mgmt = check_and_cast<inet::ieee80211::Ieee80211MgmtAP *>(source);
@@ -114,7 +114,7 @@ void Ieee80211VisualizerBase::receiveSignal(cComponent *source, simsignal_t sign
     }
     else if (signal == NF_L2_AP_DISASSOCIATED) {
         auto networkNode = getContainingNode(check_and_cast<cModule *>(source));
-        if (nodeMatcher.matches(networkNode->getFullPath().c_str())) {
+        if (nodeFilter.matches(networkNode->getFullPath().c_str())) {
             // TODO: KLUDGE: this is the wrong way to lookup the interface
             L3AddressResolver addressResolver;
             auto mgmt = check_and_cast<inet::ieee80211::Ieee80211MgmtAP *>(source);

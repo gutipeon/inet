@@ -18,11 +18,11 @@
 #ifndef __INET_ROUTINGTABLEVISUALIZERBASE_H
 #define __INET_ROUTINGTABLEVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/networklayer/contract/ipv4/IPv4Address.h"
 #include "inet/networklayer/ipv4/IPv4RoutingTable.h"
 #include "inet/visualizer/base/VisualizerBase.h"
 #include "inet/visualizer/common/LineManager.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -45,7 +45,7 @@ class INET_API RoutingTableVisualizerBase : public VisualizerBase, public cListe
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    inet::PatternMatcher destinationMatcher;
+    NodeFilter destinationMatcher;
     cFigure::Color lineColor;
     cFigure::LineStyle lineStyle;
     double lineShift = NaN;

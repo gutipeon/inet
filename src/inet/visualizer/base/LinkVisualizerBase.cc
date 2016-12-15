@@ -47,7 +47,7 @@ void LinkVisualizerBase::initialize(int stage)
         subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetSentToUpperSignal, this);
         subscriptionModule->subscribe(LayeredProtocolBase::packetReceivedFromUpperSignal, this);
-        packetNameMatcher.setPattern(par("packetNameFilter"), false, true, true);
+        packetFilter.setPattern(par("packetFilter"));
         lineColor = cFigure::Color(par("lineColor"));
         lineStyle = cFigure::parseLineStyle(par("lineStyle"));
         lineWidth = par("lineWidth");
@@ -141,7 +141,7 @@ void LinkVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
     if (signal == LayeredProtocolBase::packetReceivedFromUpperSignal) {
         if (isLinkEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
-            if (packetNameMatcher.matches(packet->getFullName())) {
+            if (packetFilter.matches(packet->getFullName())) {
                 auto treeId = packet->getTreeId();
                 auto module = check_and_cast<cModule *>(source);
                 setLastModule(treeId, module);
@@ -151,7 +151,7 @@ void LinkVisualizerBase::receiveSignal(cComponent *source, simsignal_t signal, c
     else if (signal == LayeredProtocolBase::packetSentToUpperSignal) {
         if (isLinkEnd(static_cast<cModule *>(source))) {
             auto packet = check_and_cast<cPacket *>(object);
-            if (packetNameMatcher.matches(packet->getFullName())) {
+            if (packetFilter.matches(packet->getFullName())) {
                 auto treeId = packet->getTreeId();
                 auto module = check_and_cast<cModule *>(source);
                 auto lastModule = getLastModule(treeId);

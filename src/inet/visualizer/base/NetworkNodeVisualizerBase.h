@@ -18,8 +18,8 @@
 #ifndef __INET_NETWORKNODEVISUALIZERBASE_H
 #define __INET_NETWORKNODEVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -28,7 +28,7 @@ namespace visualizer {
 class INET_API NetworkNodeVisualizerBase : public VisualizerBase, public cListener
 {
   protected:
-    PatternMatcher networkNodePathMatcher;
+    NodeFilter nodeFilter;
 
   protected:
     virtual void initialize(int stage) override;

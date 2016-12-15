@@ -18,10 +18,10 @@
 #ifndef __INET_LINKBREAKVISUALIZERBASE_H
 #define __INET_LINKBREAKVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/linklayer/common/MACAddress.h"
 #include "inet/visualizer/base/VisualizerBase.h"
 #include "inet/visualizer/common/AnimationPosition.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -45,7 +45,7 @@ class INET_API LinkBreakVisualizerBase : public VisualizerBase, public cListener
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    PatternMatcher nodeMatcher;
+    NodeFilter nodeFilter;
     const char *icon = nullptr;
     double iconTintAmount = NaN;
     cFigure::Color iconTintColor;

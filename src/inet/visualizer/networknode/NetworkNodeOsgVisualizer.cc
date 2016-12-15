@@ -37,7 +37,7 @@ void NetworkNodeOsgVisualizer::initialize(int stage)
         auto scene = inet::osg::TopLevelScene::getSimulationScene(visualizerTargetModule);
         for (cModule::SubmoduleIterator it(getSystemModule()); !it.end(); it++) {
             auto networkNode = *it;
-            if (isNetworkNode(networkNode) && networkNodePathMatcher.matches(networkNode->getFullPath().c_str())) {
+            if (isNetworkNode(networkNode) && nodeFilter.matches(networkNode->getFullPath().c_str())) {
                 auto positionAttitudeTransform = createNetworkNodeVisualization(networkNode);
                 setNetworkNodeVisualization(networkNode, positionAttitudeTransform);
                 scene->addChild(positionAttitudeTransform);

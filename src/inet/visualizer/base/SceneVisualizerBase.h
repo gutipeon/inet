@@ -19,7 +19,6 @@
 #define __INET_SCENEVISUALIZERBASE_H
 
 #include "inet/common/geometry/object/Box.h"
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
 
 namespace inet {

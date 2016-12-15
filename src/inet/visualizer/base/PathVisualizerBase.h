@@ -19,10 +19,10 @@
 #define __INET_PATHVISUALIZERBASE_H
 
 #include "inet/common/geometry/common/Coord.h"
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
 #include "inet/visualizer/common/AnimationPosition.h"
 #include "inet/visualizer/common/LineManager.h"
+#include "inet/visualizer/common/PacketFilter.h"
 
 namespace inet {
 
@@ -44,7 +44,7 @@ class INET_API PathVisualizerBase : public VisualizerBase, public cListener
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    inet::PatternMatcher packetNameMatcher;
+    PacketFilter packetFilter;
     cFigure::Color lineColor;
     cFigure::LineStyle lineStyle;
     double lineWidth = NaN;

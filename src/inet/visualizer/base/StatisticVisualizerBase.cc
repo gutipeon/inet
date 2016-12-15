@@ -46,7 +46,7 @@ void StatisticVisualizerBase::initialize(int stage)
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
         subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
-        sourcePathMatcher.setPattern(par("sourcePathFilter"), true, true, true);
+        sourceFilter.setPattern(par("sourcePathFilter"));
         signalName = par("signalName");
         if (*signalName != '\0')
             subscriptionModule->subscribe(registerSignal(signalName), this);
@@ -155,7 +155,7 @@ void StatisticVisualizerBase::processSignal(cComponent *source, simsignal_t sign
     if (statisticVisualization != nullptr)
         refreshStatisticVisualization(statisticVisualization);
     else {
-        if (sourcePathMatcher.matches(source->getFullPath().c_str())) {
+        if (sourceFilter.matches(source->getFullPath().c_str())) {
             statisticVisualization = createStatisticVisualization(source, signal);
             auto resultFilter = findResultFilter(source, signal);
             statisticVisualization->recorder->setLastValue(value);

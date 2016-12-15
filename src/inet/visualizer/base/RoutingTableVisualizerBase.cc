@@ -55,7 +55,7 @@ void RoutingTableVisualizerBase::initialize(int stage)
         subscriptionModule->subscribe(NF_ROUTE_DELETED, this);
         subscriptionModule->subscribe(NF_ROUTE_CHANGED, this);
         subscriptionModule->subscribe(NF_INTERFACE_IPv4CONFIG_CHANGED, this);
-        destinationMatcher.setPattern(par("destinationFilter"), true, true, true);
+        destinationMatcher.setPattern(par("destinationFilter"));
         lineColor = cFigure::Color(par("lineColor"));
         lineStyle = cFigure::parseLineStyle(par("lineStyle"));
         lineWidth = par("lineWidth");

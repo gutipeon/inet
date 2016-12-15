@@ -49,7 +49,7 @@ void LinkBreakVisualizerBase::initialize(int stage)
     if (stage == INITSTAGE_LOCAL) {
         subscriptionModule = getModuleFromPar<cModule>(par("subscriptionModule"), this);
         subscriptionModule->subscribe(NF_LINK_BREAK, this);
-        nodeMatcher.setPattern(par("nodeFilter"), true, true, true);
+        nodeFilter.setPattern(par("nodeFilter"));
         icon = par("icon");
         iconTintAmount = par("iconTintAmount");
         if (iconTintAmount != 0)
@@ -101,7 +101,7 @@ void LinkBreakVisualizerBase::receiveSignal(cComponent *source, simsignal_t sign
         }
         auto transmitter = findNode(transmitterAddress);
         auto receiver = findNode(receiverAddress);
-        if (nodeMatcher.matches(transmitter->getFullPath().c_str()) && nodeMatcher.matches(receiver->getFullPath().c_str())) {
+        if (nodeFilter.matches(transmitter->getFullPath().c_str()) && nodeFilter.matches(receiver->getFullPath().c_str())) {
             auto key = std::pair<int, int>(transmitter->getId(), receiver->getId());
             auto it = linkBreakVisualizations.find(key);
             if (it == linkBreakVisualizations.end())

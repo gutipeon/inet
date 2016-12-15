@@ -18,9 +18,10 @@
 #ifndef __INET_IEEE80211VISUALIZERBASE_H
 #define __INET_IEEE80211VISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/networklayer/common/InterfaceEntry.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/InterfaceFilter.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -43,8 +44,8 @@ class INET_API Ieee80211VisualizerBase : public VisualizerBase, public cListener
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    PatternMatcher nodeMatcher;
-    PatternMatcher interfaceMatcher;
+    NodeFilter nodeFilter;
+    InterfaceFilter interfaceFilter;
     const char *icon = nullptr;
     //@}
 

@@ -27,14 +27,14 @@ void NetworkConnectionVisualizerBase::initialize(int stage)
     VisualizerBase::initialize(stage);
     if (!hasGUI()) return;
     if (stage == INITSTAGE_LOCAL) {
-        networkNodePathMatcher.setPattern(par("networkNodePathFilter"), true, true, true);
+        nodeFilter.setPattern(par("nodeFilter"));
         lineColor = cFigure::Color(par("lineColor"));
         lineWidth = par("lineWidth");
     }
     else if (stage == INITSTAGE_LAST) {
         for (cModule::SubmoduleIterator it(getSystemModule()); !it.end(); it++) {
             auto networkNode = *it;
-            if (isNetworkNode(networkNode) && networkNodePathMatcher.matches(networkNode->getFullPath().c_str())) {
+            if (isNetworkNode(networkNode) && nodeFilter.matches(networkNode->getFullPath().c_str())) {
                 for (cModule::GateIterator gt(networkNode); !gt.end(); gt++) {
                     auto gate = *gt;
                     auto startNetworkNode = getContainingNode(gate->getPathStartGate()->getOwnerModule());

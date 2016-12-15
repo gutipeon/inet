@@ -18,8 +18,8 @@
 #ifndef __INET_STATISTICVISUALIZERBASE_H
 #define __INET_STATISTICVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/ModuleFilter.h"
 
 namespace inet {
 
@@ -56,7 +56,7 @@ class INET_API StatisticVisualizerBase : public VisualizerBase, public cListener
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    PatternMatcher sourcePathMatcher;
+    ModuleFilter sourceFilter;
     const char *signalName = nullptr;
     const char *statisticName = nullptr;
     const char *unit = nullptr;

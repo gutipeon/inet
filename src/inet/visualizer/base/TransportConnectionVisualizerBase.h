@@ -18,9 +18,9 @@
 #ifndef __INET_TRANSPORTCONNECTIONVISUALIZERBASE_H
 #define __INET_TRANSPORTCONNECTIONVISUALIZERBASE_H
 
-#include "inet/common/PatternMatcher.h"
 #include "inet/transportlayer/tcp/TCPConnection.h"
 #include "inet/visualizer/base/VisualizerBase.h"
+#include "inet/visualizer/common/NodeFilter.h"
 
 namespace inet {
 
@@ -44,7 +44,7 @@ class INET_API TransportConnectionVisualizerBase : public VisualizerBase, public
     /** @name Parameters */
     //@{
     cModule *subscriptionModule = nullptr;
-    PatternMatcher nodeMatcher;
+    NodeFilter nodeFilter;
     const char *icon = nullptr;
     //@}
 
