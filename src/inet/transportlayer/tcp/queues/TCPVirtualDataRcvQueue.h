@@ -86,7 +86,7 @@ class INET_API TCPVirtualDataRcvQueue : public TCPReceiveQueue
      * Create a new Region from tcpseg.
      * Called from insertBytesFromSegment()
      */
-    virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(TcpHeader *tcpseg);
+    virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(Packet *packet, TcpHeader *tcpseg);
 
   public:
     /**
@@ -106,7 +106,7 @@ class INET_API TCPVirtualDataRcvQueue : public TCPReceiveQueue
     virtual std::string info() const override;
 
     /** Method inherited from TCPReceiveQueue */
-    virtual uint32 insertBytesFromSegment(TcpHeader *tcpseg) override;
+    virtual uint32 insertBytesFromSegment(Packet *packet, TcpHeader *tcpseg) override;
 
     /** Method inherited from TCPReceiveQueue */
     virtual cPacket *extractBytesUpTo(uint32 seq) override;

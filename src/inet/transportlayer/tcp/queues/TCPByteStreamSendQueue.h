@@ -22,6 +22,7 @@
 #include <list>
 
 #include "inet/common/ByteArrayBuffer.h"
+#include "inet/common/packet/Packet.h"
 #include "inet/transportlayer/tcp/TCPSendQueue.h"
 
 namespace inet {
@@ -61,7 +62,7 @@ class INET_API TCPByteStreamSendQueue : public TCPSendQueue
 
     virtual uint32 getBufferEndSeq() override;
 
-    virtual TcpHeader *createSegmentWithBytes(uint32 fromSeq, ulong numBytes) override;
+    virtual Packet *createSegmentWithBytes(uint32 fromSeq, ulong numBytes) override;
 
     virtual void discardUpTo(uint32 seqNum) override;
 };

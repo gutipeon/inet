@@ -115,12 +115,12 @@ cPacket *TCPByteStreamRcvQueue::extractBytesUpTo(uint32 seq)
     return msg;
 }
 
-TCPVirtualDataRcvQueue::Region *TCPByteStreamRcvQueue::createRegionFromSegment(TcpHeader *tcpseg)
+TCPVirtualDataRcvQueue::Region *TCPByteStreamRcvQueue::createRegionFromSegment(Packet *packet, TcpHeader *tcpseg)
 {
-    ASSERT(tcpseg->getPayloadLength() == tcpseg->getByteArray().getDataArraySize());
+    int payloadLength = packet->getByteLength() - tcpseg->getHeaderLength();
+    ASSERT(payloadLength == tcpseg->getByteArray().getDataArraySize());
 
-    Region *region = new Region(tcpseg->getSequenceNo(),
-                tcpseg->getSequenceNo() + tcpseg->getPayloadLength(), tcpseg->getByteArray());
+    Region *region = new Region(tcpseg->getSequenceNo(), tcpseg->getSequenceNo() + payloadLength, tcpseg->getByteArray());
 
     return region;
 }

@@ -114,15 +114,16 @@ std::string TCPVirtualDataRcvQueue::info() const
     return res;
 }
 
-TCPVirtualDataRcvQueue::Region *TCPVirtualDataRcvQueue::createRegionFromSegment(TcpHeader *tcpseg)
+TCPVirtualDataRcvQueue::Region *TCPVirtualDataRcvQueue::createRegionFromSegment(Packet *packet, TcpHeader *tcpseg)
 {
-    Region *region = new Region(tcpseg->getSequenceNo(), tcpseg->getSequenceNo() + tcpseg->getPayloadLength());
+    int payloadLength = packet->getByteLength() - tcpseg->getHeaderLength();
+    Region *region = new Region(tcpseg->getSequenceNo(), tcpseg->getSequenceNo() + payloadLength);
     return region;
 }
 
-uint32 TCPVirtualDataRcvQueue::insertBytesFromSegment(TcpHeader *tcpseg)
+uint32 TCPVirtualDataRcvQueue::insertBytesFromSegment(Packet *packet, TcpHeader *tcpseg)
 {
-    Region *region = createRegionFromSegment(tcpseg);
+    Region *region = createRegionFromSegment(packet, tcpseg);
 
 #ifndef NDEBUG
     if (!regionList.empty()) {

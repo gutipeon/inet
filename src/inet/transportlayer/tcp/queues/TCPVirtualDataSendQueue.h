@@ -76,7 +76,7 @@ class INET_API TCPVirtualDataSendQueue : public TCPSendQueue
     /**
      *
      */
-    virtual TcpHeader *createSegmentWithBytes(uint32 fromSeq, ulong numBytes) override;
+    virtual Packet *createSegmentWithBytes(uint32 fromSeq, ulong numBytes) override;
 
     /**
      *

@@ -18,6 +18,7 @@
 #include "inet/transportlayer/tcp/queues/TCPByteStreamSendQueue.h"
 
 #include "inet/common/RawPacket.h"
+#include "inet/common/packet/BytesChunk.h"
 #include "inet/transportlayer/tcp_common/TCPSegment.h"
 
 namespace inet {
@@ -70,29 +71,26 @@ uint32 TCPByteStreamSendQueue::getBufferEndSeq()
     return end;
 }
 
-TcpHeader *TCPByteStreamSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong numBytes)
+Packet *TCPByteStreamSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong numBytes)
 {
     //tcpEV << "sendQ: " << info() << " createSeg(seq=" << fromSeq << " len=" << numBytes << ")\n";
     ASSERT(seqLE(begin, fromSeq) && seqLE(fromSeq + numBytes, end));
 
-    TcpHeader *tcpseg = new TcpHeader();
+    char msgname[80];
+    sprintf(msgname, "tcpseg(l=%lu)", numBytes);
+    Packet *packet = new Packet(msgname);
+    const auto& tcpseg = std::make_shared<TcpHeader>();
     tcpseg->setSequenceNo(fromSeq);
-    tcpseg->setPayloadLength(numBytes);
-    tcpseg->addChunkByteLength(numBytes);
-
     // add payload messages whose endSequenceNo is between fromSeq and fromSeq+numBytes
     unsigned int fromOffs = (uint32)(fromSeq - begin);
     char *buffer = new char[numBytes];
     unsigned int bytes = dataBuffer.getBytesToBuffer(buffer, numBytes, fromOffs);
     ASSERT(bytes == numBytes);
-    tcpseg->getByteArray().assignBuffer(buffer, bytes);
-
-    // give segment a name
-    char msgname[80];
-    sprintf(msgname, "tcpseg(l=%lu)", numBytes);
-    tcpseg->setName(msgname);
-
-    return tcpseg;
+    const auto& payload = std::make_shared<BytesChunk>();
+    payload->setBytes(buffer, numBytes);
+    packet->pushHeader(tcpseg);
+    packet->pushTrailer(payload);
+    return packet;
 }
 
 void TCPByteStreamSendQueue::discardUpTo(uint32 seqNum)

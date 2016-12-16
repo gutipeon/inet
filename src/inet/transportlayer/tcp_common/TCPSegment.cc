@@ -130,11 +130,12 @@ void TcpHeader::clean()
     }
     payloadLength = 0;
 
-    setChunkByteLength(TCP_HEADER_OCTETS);
+    setChunkLength(TCP_HEADER_OCTETS);
 }
 
 void TcpHeader::truncateData(unsigned int truncleft, unsigned int truncright)
 {
+#if 0   //FIXME KLUDGE
     ASSERT(payloadLength >= truncleft + truncright);
 
     if (0 != byteArray.getDataArraySize())
@@ -156,6 +157,7 @@ void TcpHeader::truncateData(unsigned int truncleft, unsigned int truncright)
         payloadList.pop_back();
         dropAndDelete(msg);
     }
+#endif
 }
 
 void TcpHeader::parsimPack(cCommBuffer *b) PARSIMPACK_CONST
@@ -270,7 +272,7 @@ void TcpHeader::dropHeaderOptions()
         delete opt;
     headerOptionList.clear();
     setHeaderLength(TCP_HEADER_OCTETS);
-    setChunkByteLength(TCP_HEADER_OCTETS + payloadLength);
+    setChunkLength(TCP_HEADER_OCTETS + payloadLength);
 }
 
 

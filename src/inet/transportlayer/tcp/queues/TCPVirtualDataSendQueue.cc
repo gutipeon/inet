@@ -64,7 +64,7 @@ uint32 TCPVirtualDataSendQueue::getBufferEndSeq()
     return end;
 }
 
-TcpHeader *TCPVirtualDataSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong numBytes)
+Packet *TCPVirtualDataSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong numBytes)
 {
     //tcpEV << "sendQ: " << info() << " createSeg(seq=" << fromSeq << " len=" << numBytes << ")\n";
 
@@ -73,11 +73,13 @@ TcpHeader *TCPVirtualDataSendQueue::createSegmentWithBytes(uint32 fromSeq, ulong
     char msgname[32];
     sprintf(msgname, "tcpseg(l=%lu)", numBytes);
 
-    TcpHeader *tcpseg = conn->createTCPSegment(msgname);
+    Packet *packet = new Packet(msgname);
+    const auto& tcpseg = std::make_shared<TcpHeader>();
     tcpseg->setSequenceNo(fromSeq);
-    tcpseg->setPayloadLength(numBytes);
-    tcpseg->addChunkByteLength(numBytes);
-    return tcpseg;
+    const auto& payload = std::make_shared<ByteCountChunk>(numBytes);
+    packet->pushHeader(tcpseg);
+    packet->pushTrailer(payload);
+    return packet;
 }
 
 void TCPVirtualDataSendQueue::discardUpTo(uint32 seqNum)

@@ -66,7 +66,7 @@ void TCPSpoof::sendSpoofPacket()
     sendToIP(packet, srcAddr, destAddr);
 }
 
-void TCPSpoof::sendToIP(FlatPacket *pk, L3Address src, L3Address dest)
+void TCPSpoof::sendToIP(Packet *pk, L3Address src, L3Address dest)
 {
     EV_INFO << "Sending: ";
     //printSegmentBrief(tcpseg);

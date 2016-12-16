@@ -86,7 +86,7 @@ class INET_API TCPByteStreamRcvQueue : public TCPVirtualDataRcvQueue
      * Create a new Region from tcpseg.
      * Called from insertBytesFromSegment()
      */
-    virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(TcpHeader *tcpseg) override;
+    virtual TCPVirtualDataRcvQueue::Region *createRegionFromSegment(Packet *packet, TcpHeader *tcpseg) override;
 };
 
 } // namespace tcp

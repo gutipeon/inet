@@ -20,6 +20,7 @@
 
 #include "inet/common/INETDefs.h"
 
+#include "inet/common/packet/Packet.h"
 #include "inet/transportlayer/tcp/TCPConnection.h"
 #include "inet/transportlayer/tcp_common/TCPSegment.h"
 
@@ -148,7 +149,7 @@ class INET_API TCPSendQueue : public cObject
      * maxNumBytes bytes if the subclass wants to reproduce the original
      * segment boundaries when retransmitting.
      */
-    virtual TcpHeader *createSegmentWithBytes(uint32 fromSeq, ulong maxNumBytes) = 0;
+    virtual Packet *createSegmentWithBytes(uint32 fromSeq, ulong maxNumBytes) = 0;
 
     /**
      * Tells the queue that bytes up to (but NOT including) seqNum have been
